@@ -1,0 +1,315 @@
+package hu.zoldleo.embers.blockentity;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+
+import hu.zoldleo.embers.blockentity.capability_helper.IEmberBlock;
+import hu.zoldleo.embers.blockentity.capability_helper.IInventoryBlock;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.neoforged.neoforge.capabilities.BlockCapability;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import org.jetbrains.annotations.NotNull;
+import org.joml.Math;
+import org.joml.Vector3f;
+
+import hu.zoldleo.embers.Embers;
+import hu.zoldleo.embers.RegistryManager;
+import hu.zoldleo.embers.api.capabilities.EmbersCapabilities;
+import hu.zoldleo.embers.api.event.DialInformationEvent;
+import hu.zoldleo.embers.api.event.EmberEvent;
+import hu.zoldleo.embers.api.power.IEmberCapability;
+import hu.zoldleo.embers.api.tile.IExtraCapabilityInformation;
+import hu.zoldleo.embers.api.tile.IExtraDialInformation;
+import hu.zoldleo.embers.api.tile.IUpgradeable;
+import hu.zoldleo.embers.api.upgrades.UpgradeContext;
+import hu.zoldleo.embers.api.upgrades.UpgradeUtil;
+import hu.zoldleo.embers.block.EmberDialBlock;
+import hu.zoldleo.embers.datagen.EmbersSounds;
+import hu.zoldleo.embers.particle.GlowParticleOptions;
+import hu.zoldleo.embers.particle.SmokeParticleOptions;
+import hu.zoldleo.embers.power.DefaultEmberCapability;
+import hu.zoldleo.embers.recipe.base.IEmberActivationRecipe;
+import hu.zoldleo.embers.util.DecimalFormats;
+import hu.zoldleo.embers.util.EmbersColors;
+import hu.zoldleo.embers.util.Misc;
+import hu.zoldleo.embers.util.sound.ISoundController;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+
+public class IgnemReactorBlockEntity extends BlockEntity implements ISoundController, IExtraDialInformation, IExtraCapabilityInformation, IUpgradeable, IEmberBlock, IInventoryBlock {
+	public static final double BASE_MULTIPLIER = 1.0;
+	public static final int PROCESS_TIME = 20;
+	static Random random = new Random();
+	public IEmberCapability capability = new DefaultEmberCapability() {
+		@Override
+		public void onContentsChanged() {
+			super.onContentsChanged();
+			IgnemReactorBlockEntity.this.setChanged();
+		}
+	};
+	public ItemStackHandler inventory = new ItemStackHandler(1) {
+		@Override
+		protected void onContentsChanged(int slot) {
+			IgnemReactorBlockEntity.this.setChanged();
+		}
+
+		@Override
+		public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+			if (Misc.getRecipe(cachedRecipe, RegistryManager.EMBER_ACTIVATION.get(), new SingleRecipeInput(stack), level) != null) {
+				return super.insertItem(slot, stack, simulate);
+			}
+			return stack;
+		}
+	};
+	int progress = -1;
+
+	protected List<UpgradeContext> upgrades = new ArrayList<>();
+	public RecipeHolder<IEmberActivationRecipe> cachedRecipe = null;
+	public double catalyzerMult;
+	public double combustorMult;
+
+	public static final int SOUND_HAS_EMBER = 1;
+	public static final int[] SOUND_IDS = new int[]{SOUND_HAS_EMBER};
+
+	HashSet<Integer> soundsPlaying = new HashSet<>();
+
+	public IgnemReactorBlockEntity(BlockPos pPos, BlockState pBlockState) {
+		super(RegistryManager.IGNEM_REACTOR_ENTITY.get(), pPos, pBlockState);
+		capability.setEmberCapacity(128000);
+	}
+
+	@Override
+	public void loadAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
+		super.loadAdditional(nbt, provider);
+		if (nbt.contains("Inventory"))
+			inventory.deserializeNBT(provider, nbt.getCompound("Inventory"));
+		capability.readFromNBT(provider, nbt);
+		if (nbt.contains("progress"))
+			progress = nbt.getInt("progress");
+		catalyzerMult = nbt.getDouble("catalyzer");
+		combustorMult = nbt.getDouble("combustor");
+	}
+
+	@Override
+	public void saveAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
+		super.saveAdditional(nbt, provider);
+		nbt.put("Inventory", inventory.serializeNBT(provider));
+		capability.writeToNBT(provider, nbt);
+		nbt.putInt("progress", progress);
+		nbt.putDouble("catalyzer", catalyzerMult);
+		nbt.putDouble("combustor", combustorMult);
+	}
+
+	@Override
+	public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider provider) {
+		CompoundTag nbt = super.getUpdateTag(provider);
+		capability.writeToNBT(provider, nbt);
+		nbt.putDouble("catalyzer", catalyzerMult);
+		nbt.putDouble("combustor", combustorMult);
+		return nbt;
+	}
+
+	@Override
+	public Packet<ClientGamePacketListener> getUpdatePacket() {
+		return ClientboundBlockEntityDataPacket.create(this);
+	}
+
+	public static void clientTick(Level level, BlockPos pos, BlockState state, IgnemReactorBlockEntity blockEntity) {
+		blockEntity.upgrades = UpgradeUtil.getUpgrades(level, pos, Misc.horizontals);
+		UpgradeUtil.verifyUpgrades(blockEntity, blockEntity.upgrades);
+		blockEntity.handleSound();
+		if (blockEntity.capability.getEmber() > 0) {
+			float catalyzerRatio = 0.0f;
+			if (blockEntity.catalyzerMult > 0 || blockEntity.combustorMult > 0)
+				catalyzerRatio = (float) (blockEntity.catalyzerMult / (blockEntity.catalyzerMult + blockEntity.combustorMult));
+
+			float[] limits = new float[] {
+					EmbersColors.EMBER.x,
+					EmbersColors.EMBER.y,
+					EmbersColors.EMBER.z
+			};
+
+			int min = EmbersColors.EMBER.minComponent();
+			int max = EmbersColors.EMBER.maxComponent();
+			int mid = 0;
+			if (max == 0) {
+				if (min == 1)
+					mid = 2;
+				else if (min == 2)
+					mid = 0;
+			} else if (max == 1) {
+				if (min == 0)
+					mid = 2;
+				else if (min == 2)
+					mid = 0;
+			} else if (max == 2) {
+				if (min == 0)
+					mid = 1;
+				else if (min == 1)
+					mid = 0;
+			}
+			limits[min] = limits[mid];
+
+			float r = Mth.clampedLerp(EmbersColors.EMBER.x, limits[0], catalyzerRatio);
+			float g = Mth.clampedLerp(EmbersColors.EMBER.y, limits[1], catalyzerRatio);
+			float b = Mth.clampedLerp(EmbersColors.EMBER.z, limits[2], catalyzerRatio);
+			float size = (float) Mth.clampedLerp(4.0, 2.0, catalyzerRatio);
+			GlowParticleOptions options = new GlowParticleOptions(new Vector3f(r, g, b), size);
+			for (int i = 0; i < Math.ceil(blockEntity.capability.getEmber() / 3000.0); i ++) {
+				float vx = (float) Mth.clampedLerp(0, (random.nextFloat() - 0.5) * 0.1f, catalyzerRatio);
+				float vy = (float) Mth.clampedLerp(random.nextFloat() * 0.05f, (random.nextFloat() - 0.5) * 0.2f, catalyzerRatio);
+				float vz = (float) Mth.clampedLerp(0, (random.nextFloat() - 0.5) * 0.1f, catalyzerRatio);
+				level.addParticle(options, pos.getX()+0.25f+random.nextFloat()*0.5f, pos.getY()+0.25f+random.nextFloat()*0.5f, pos.getZ()+0.25f+random.nextFloat()*0.5f, vx, vy, vz);
+			}
+		}
+	}
+
+	public static void serverTick(Level level, BlockPos pos, BlockState state, IgnemReactorBlockEntity blockEntity) {
+		blockEntity.upgrades = UpgradeUtil.getUpgrades(level, pos, Misc.horizontals);
+		UpgradeUtil.verifyUpgrades(blockEntity, blockEntity.upgrades);
+		if (UpgradeUtil.doTick(blockEntity, blockEntity.upgrades))
+			return;
+
+		boolean cancel = UpgradeUtil.doWork(blockEntity, blockEntity.upgrades);
+		if (!cancel && !blockEntity.inventory.getStackInSlot(0).isEmpty()) {
+			blockEntity.progress++;
+			if (blockEntity.progress > UpgradeUtil.getWorkTime(blockEntity, PROCESS_TIME, blockEntity.upgrades)) {
+				blockEntity.catalyzerMult = 0.0;
+				blockEntity.combustorMult = 0.0;
+				double multiplier = BASE_MULTIPLIER;
+				for (Direction facing : Misc.horizontals) {
+					BlockEntity tile = level.getBlockEntity(pos.relative(facing).below());
+					if (tile instanceof CatalysisChamberBlockEntity)
+						blockEntity.catalyzerMult += ((CatalysisChamberBlockEntity) tile).multiplier;
+					if (tile instanceof CombustionChamberBlockEntity)
+						blockEntity.combustorMult += ((CombustionChamberBlockEntity) tile).multiplier;
+				}
+				if (Math.max(blockEntity.combustorMult, blockEntity.catalyzerMult) < 2.0f * Math.min(blockEntity.combustorMult, blockEntity.catalyzerMult)) {
+					multiplier += blockEntity.combustorMult;
+					multiplier += blockEntity.catalyzerMult;
+					blockEntity.progress = 0;
+					if (blockEntity.inventory != null) {
+						RecipeWrapper wrapper = new RecipeWrapper(blockEntity.inventory);
+						blockEntity.cachedRecipe = Misc.getRecipe(blockEntity.cachedRecipe, RegistryManager.EMBER_ACTIVATION.get(), wrapper, level);
+						if (blockEntity.cachedRecipe != null) {
+							double emberValue = blockEntity.cachedRecipe.value().getOutput(wrapper);
+							double ember = UpgradeUtil.getTotalEmberProduction(blockEntity, multiplier * emberValue, blockEntity.upgrades);
+							if (ember > 0 && blockEntity.capability.getEmber() + ember <= blockEntity.capability.getEmberCapacity()) {
+								level.playSound(null, pos, EmbersSounds.IGNEM_REACTOR.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
+								if (level instanceof ServerLevel serverLevel) {
+									serverLevel.sendParticles(new GlowParticleOptions(EmbersColors.EMBER_ID, new Vec3(0, 0.65f, 0), 4.7f), pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, 80, 0.1, 0.1, 0.1, 1.0);
+									serverLevel.sendParticles(new SmokeParticleOptions(EmbersColors.SMOKE_ID, 5.0f), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 20, 0.1, 0.1, 0.1, 1.0);
+								}
+								UpgradeUtil.throwEvent(blockEntity, new EmberEvent(blockEntity, EmberEvent.EnumType.PRODUCE, ember), blockEntity.upgrades);
+								blockEntity.capability.addAmount(ember, true);
+
+								//the recipe is responsible for taking items from the getCapability
+								blockEntity.cachedRecipe.value().process(wrapper);
+							}
+						}
+					}
+				}
+			}
+			blockEntity.setChanged();
+		}
+	}
+
+	@Override
+	public void setChanged() {
+		super.setChanged();
+		if (level instanceof ServerLevel)
+			((ServerLevel) level).getChunkSource().blockChanged(worldPosition);
+	}
+
+	@Override
+	public void playSound(int id) {
+        if (id == SOUND_HAS_EMBER)
+            EmbersSounds.playMachineSound(this, SOUND_HAS_EMBER, EmbersSounds.GENERATOR_LOOP.get(), SoundSource.BLOCKS, true, 1.0f, 1.0f, (float) worldPosition.getX() + 0.5f, (float) worldPosition.getY() + 0.5f, (float) worldPosition.getZ() + 0.5f);
+		soundsPlaying.add(id);
+	}
+
+	@Override
+	public void stopSound(int id) {
+		soundsPlaying.remove(id);
+	}
+
+	@Override
+	public boolean isSoundPlaying(int id) {
+		return soundsPlaying.contains(id);
+	}
+
+	@Override
+	public int[] getSoundIDs() {
+		return SOUND_IDS;
+	}
+
+	@Override
+	public boolean shouldPlaySound(int id) {
+		return id == SOUND_HAS_EMBER && capability.getEmber() > 0;
+	}
+
+	public float getCurrentVolume(int id, float volume) {
+		return (float) ((capability.getEmber() + 5000.0f) / (capability.getEmberCapacity() + 5000.0f));
+	}
+
+	@Override
+	public boolean hasCapabilityDescription(BlockCapability<?, ?> capability) {
+		return capability == Capabilities.ItemHandler.BLOCK || capability == EmbersCapabilities.EMBER_CAPABILITY_BLOCK;
+	}
+
+	@Override
+	public void addCapabilityDescription(List<Component> strings, BlockCapability<?, ?> capability, Direction facing) {
+		if (capability == Capabilities.ItemHandler.BLOCK)
+			strings.add(IExtraCapabilityInformation.formatCapability(EnumIOType.INPUT, Embers.MODID + ".tooltip.goggles.item", Component.translatable(Embers.MODID + ".tooltip.goggles.item.ember")));
+		if (capability == EmbersCapabilities.EMBER_CAPABILITY_BLOCK)
+			strings.add(IExtraCapabilityInformation.formatCapability(EnumIOType.OUTPUT, Embers.MODID + ".tooltip.goggles.ember", null));
+	}
+
+	@Override
+	public void addDialInformation(Direction facing, List<Component> information, String dialType) {
+		if (EmberDialBlock.DIAL_TYPE.equals(dialType) && Math.max(combustorMult, catalyzerMult) < 2.0f * Math.min(combustorMult, catalyzerMult)) {
+			DecimalFormat multiplierFormat = DecimalFormats.getDecimalFormat(Embers.MODID + ".decimal_format.ember_multiplier");
+			double multiplier = BASE_MULTIPLIER + combustorMult + catalyzerMult;
+			information.add(Component.translatable(Embers.MODID + ".tooltip.dial.ember_multiplier", multiplierFormat.format(multiplier)));
+		}
+		UpgradeUtil.throwEvent(this, new DialInformationEvent(this, information, dialType), upgrades);
+	}
+
+	@Override
+	public boolean isSideUpgradeSlot(Direction face) {
+		return face.getAxis() != Axis.Y;
+	}
+
+    @Override
+    public IEmberCapability getEmberCapability(Direction side) {
+        return this.remove ? null : capability;
+    }
+
+    @Override
+    public IItemHandler getInventoryCapability(Direction side) {
+        return this.remove ? null : inventory;
+    }
+}

@@ -1,0 +1,8 @@
+{
+  "comparator_output": 15,
+  "description": {
+    "translate": "item.embers.music_disc_7f_patterns.desc"
+  },
+  "length_in_seconds": 222,
+  "sound_event": "embers:music_disc.7f_patterns"
+}

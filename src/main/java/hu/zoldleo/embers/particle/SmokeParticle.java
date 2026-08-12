@@ -1,0 +1,58 @@
+package hu.zoldleo.embers.particle;
+
+import hu.zoldleo.embers.render.EmbersRenderTypes;
+
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
+
+@OnlyIn(Dist.CLIENT)
+public class SmokeParticle extends TextureSheetParticle {
+
+	public float rotScale = random.nextFloat() * 0.1f + 0.05f;
+
+	public SmokeParticle(ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed, SmokeParticleOptions pOptions) {
+		super(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed);
+		this.friction = 1.0F;
+		this.speedUpWhenYMotionIsBlocked = true;
+		this.xd *= 0.1;
+		this.yd *= 0.1;
+		this.zd *= 0.1;
+		this.rCol = pOptions.getColor().x();
+		this.gCol = pOptions.getColor().y();
+		this.bCol = pOptions.getColor().z();
+		this.oRoll = 2.0f * (float) Math.PI;
+		this.roll = this.oRoll + rotScale;
+		this.quadSize *= 0.75F * pOptions.getScale();
+		double i = 6.0D / (this.random.nextDouble() * 0.5D + 0.5D);
+		this.lifetime = (int)(i * pOptions.getScale());
+	}
+
+	public float getQuadSize(float pScaleFactor) {
+		return this.quadSize - this.quadSize * (((float)this.age + pScaleFactor) / (float)this.lifetime);
+	}
+
+	public void tick() {
+		super.tick();
+		this.alpha = 0.5f * (1.0f - (float)this.age / (float)this.lifetime);
+		this.oRoll = this.roll;
+		this.roll += rotScale;
+		this.yd += 0.004D;
+	}
+
+	@Override
+	public @NotNull ParticleRenderType getRenderType() {
+		return EmbersRenderTypes.PARTICLE_SHEET_TRANSLUCENT_NODEPTH;
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	public static class Provider implements ParticleProvider.Sprite<SmokeParticleOptions> {
+		public TextureSheetParticle createParticle(@NotNull SmokeParticleOptions pType, @NotNull ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
+			return new SmokeParticle(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed, pType);
+		}
+	}
+}

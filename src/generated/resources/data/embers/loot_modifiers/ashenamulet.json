@@ -4,9 +4,7 @@
     {
       "condition": "embers:match_curio",
       "predicate": {
-        "items": [
-          "embers:ashen_amulet"
-        ]
+        "items": "embers:ashen_amulet"
       }
     }
   ]

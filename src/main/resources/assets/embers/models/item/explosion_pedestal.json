@@ -252,8 +252,8 @@
 			"to": [9, 26, 12],
 			"shade": true,
 			"faces": {
-				"up": {"uv": [7, 4, 9, 12], "texture": "#3", "forge_data": { "block_light": 15 }},
-				"down": {"uv": [7, 4, 9, 12], "texture": "#3", "forge_data": { "block_light": 15 }}
+				"up": {"uv": [7, 4, 9, 12], "texture": "#3", "neoforge_data": { "block_light": 15 }},
+				"down": {"uv": [7, 4, 9, 12], "texture": "#3", "neoforge_data": { "block_light": 15 }}
 			}
 		},
 		{
@@ -262,8 +262,8 @@
 			"to": [12, 26, 9],
 			"shade": true,
 			"faces": {
-				"up": {"uv": [4, 7, 12, 9], "texture": "#3", "forge_data": { "block_light": 15 }},
-				"down": {"uv": [4, 7, 12, 9], "texture": "#3", "forge_data": { "block_light": 15 }}
+				"up": {"uv": [4, 7, 12, 9], "texture": "#3", "neoforge_data": { "block_light": 15 }},
+				"down": {"uv": [4, 7, 12, 9], "texture": "#3", "neoforge_data": { "block_light": 15 }}
 			}
 		},
 		{

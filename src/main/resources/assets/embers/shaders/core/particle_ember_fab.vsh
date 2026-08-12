@@ -22,7 +22,7 @@ void main() {
 	viewSpacePos = ModelViewMat * vec4(Position, 1.0);
 	gl_Position = ProjMat * viewSpacePos;
 
-	vertexDistance = fog_distance(ModelViewMat, Position, FogShape);
+	vertexDistance = fog_distance(viewSpacePos.xyz, FogShape);
 	texCoord0 = UV0;
 	vertexColor = Color * texelFetch(Sampler2, UV2 / 16, 0);
 }

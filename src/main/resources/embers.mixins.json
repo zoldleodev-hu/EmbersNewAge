@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "hu.zoldleo.embers.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+  ],
+  "client": [
+    "ModelBakerImplMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

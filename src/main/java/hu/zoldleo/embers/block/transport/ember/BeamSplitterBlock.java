@@ -1,0 +1,142 @@
+package hu.zoldleo.embers.block.transport.ember;
+
+import javax.annotation.Nullable;
+
+import com.mojang.serialization.MapCodec;
+import hu.zoldleo.embers.RegistryManager;
+import hu.zoldleo.embers.util.Misc;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
+
+public class BeamSplitterBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
+    public static final MapCodec<BeamSplitterBlock> CODEC = simpleCodec(BeamSplitterBlock::new);
+
+	protected static final VoxelShape UP_AABB = Shapes.or(box(5,0,5,11,3,11), box(3,3,3,13,13,13));
+	protected static final VoxelShape DOWN_AABB = Shapes.or(box(5,13,5,11,16,11), box(3,3,3,13,13,13));
+	protected static final VoxelShape NORTH_AABB = Shapes.or(box(5,5,13,11,11,16), box(3,3,3,13,13,13));
+	protected static final VoxelShape SOUTH_AABB = Shapes.or(box(5,5,0,11,11,3), box(3,3,3,13,13,13));
+	protected static final VoxelShape WEST_AABB = Shapes.or(box(13,5,5,16,11,11), box(3,3,3,13,13,13));
+	protected static final VoxelShape EAST_AABB = Shapes.or(box(0,5,5,3,11,11), box(3,3,3,13,13,13));
+
+	public static final DirectionProperty FACING = BlockStateProperties.FACING;
+
+	public BeamSplitterBlock(Properties properties) {
+		super(properties);
+		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.UP).setValue(BlockStateProperties.AXIS, Axis.Z).setValue(BlockStateProperties.WATERLOGGED, false));
+	}
+
+    @Override
+    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
+    @Override
+	public @NotNull VoxelShape getShape(BlockState pState, @NotNull BlockGetter pLevel, @NotNull BlockPos pPos, @NotNull CollisionContext pContext) {
+        return switch (pState.getValue(FACING)) {
+            case UP -> UP_AABB;
+            case DOWN -> DOWN_AABB;
+            case EAST -> EAST_AABB;
+            case WEST -> WEST_AABB;
+            case SOUTH -> SOUTH_AABB;
+            default -> NORTH_AABB;
+        };
+	}
+
+	@Override
+	public @NotNull RenderShape getRenderShape(@NotNull BlockState pState) {
+		return RenderShape.MODEL;
+	}
+
+	@Override
+	public boolean canSurvive(BlockState pState, @NotNull LevelReader pLevel, @NotNull BlockPos pPos) {
+		return canAttach(pLevel, pPos, pState.getValue(FACING).getOpposite());
+	}
+
+	public static boolean canAttach(LevelReader pReader, BlockPos pPos, Direction pDirection) {
+		return !pReader.getBlockState(pPos.relative(pDirection)).isAir();
+	}
+
+	@Nullable
+	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext pContext) {
+		Direction[] directions = pContext.getNearestLookingDirections();
+		for (Direction direction : directions) {
+			BlockState blockstate = this.defaultBlockState().setValue(FACING, direction.getOpposite());
+			if (blockstate.canSurvive(pContext.getLevel(), pContext.getClickedPos())) {
+				Axis axis = Axis.Z;
+				for (Direction facing : directions) {
+					if (facing.getAxis() != direction.getAxis()) {
+						axis = Misc.getOtherAxis(direction.getAxis(), facing.getAxis());
+						break;
+					}
+				}
+				return blockstate.setValue(BlockStateProperties.AXIS, axis).setValue(BlockStateProperties.WATERLOGGED, pContext.getLevel().getFluidState(pContext.getClickedPos()).is(Fluids.WATER));
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public @NotNull BlockState updateShape(BlockState pState, @NotNull Direction pFacing, @NotNull BlockState pFacingState, @NotNull LevelAccessor pLevel, @NotNull BlockPos pCurrentPos, @NotNull BlockPos pFacingPos) {
+		if (pState.getValue(BlockStateProperties.WATERLOGGED))
+			pLevel.scheduleTick(pCurrentPos, Fluids.WATER, Fluids.WATER.getTickDelay(pLevel));
+		return pState.getValue(FACING).getOpposite() == pFacing && !pState.canSurvive(pLevel, pCurrentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+	}
+
+	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
+		pBuilder.add(FACING).add(BlockStateProperties.AXIS).add(BlockStateProperties.WATERLOGGED);
+	}
+
+	@Override
+	public BlockEntity newBlockEntity(@NotNull BlockPos pPos, @NotNull BlockState pState) {
+		return RegistryManager.BEAM_SPLITTER_ENTITY.get().create(pPos, pState);
+	}
+
+	@Override
+	public @NotNull FluidState getFluidState(BlockState pState) {
+		return pState.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(pState);
+	}
+
+	@Override
+	public @NotNull BlockState rotate(BlockState state, Rotation rotation) {
+		Direction facing = rotation.rotate(state.getValue(FACING));
+		Axis axis = state.getValue(BlockStateProperties.AXIS);
+		if (rotation == Rotation.CLOCKWISE_90 || rotation == Rotation.COUNTERCLOCKWISE_90) {
+			if (state.getValue(BlockStateProperties.AXIS) == Axis.Z)
+				state = state.setValue(BlockStateProperties.AXIS, Axis.X);
+			else if (axis == Axis.X)
+				state = state.setValue(BlockStateProperties.AXIS, Axis.Z);
+		}
+		return state.setValue(FACING, facing);
+	}
+
+	@Override
+	public @NotNull BlockState mirror(BlockState state, Mirror mirror) {
+		return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+	}
+}

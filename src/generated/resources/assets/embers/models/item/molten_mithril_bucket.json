@@ -3,5 +3,5 @@
   "cover_is_mask": false,
   "flip_gas": true,
   "fluid": "embers:molten_mithril",
-  "loader": "forge:fluid_container"
+  "loader": "neoforge:fluid_container"
 }

@@ -234,8 +234,8 @@
 			"from": [7, 8, 4],
 			"to": [9, 10, 12],
 			"faces": {
-				"up": {"uv": [7, 4, 9, 12], "texture": "#3", "forge_data": { "block_light": 15 }},
-				"down": {"uv": [7, 4, 9, 12], "texture": "#3", "forge_data": { "block_light": 15 }}
+				"up": {"uv": [7, 4, 9, 12], "texture": "#3", "neoforge_data": { "block_light": 15 }},
+				"down": {"uv": [7, 4, 9, 12], "texture": "#3", "neoforge_data": { "block_light": 15 }}
 			}
 		},
 		{
@@ -243,8 +243,8 @@
 			"from": [4, 8, 7],
 			"to": [12, 10, 9],
 			"faces": {
-				"up": {"uv": [4, 7, 12, 9], "texture": "#3", "forge_data": { "block_light": 15 }},
-				"down": {"uv": [4, 7, 12, 9], "texture": "#3", "forge_data": { "block_light": 15 }}
+				"up": {"uv": [4, 7, 12, 9], "texture": "#3", "neoforge_data": { "block_light": 15 }},
+				"down": {"uv": [4, 7, 12, 9], "texture": "#3", "neoforge_data": { "block_light": 15 }}
 			}
 		},
 		{

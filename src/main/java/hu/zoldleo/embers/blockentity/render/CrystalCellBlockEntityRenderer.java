@@ -1,0 +1,119 @@
+package hu.zoldleo.embers.blockentity.render;
+
+import java.util.Random;
+
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
+import hu.zoldleo.embers.ConfigManager;
+import hu.zoldleo.embers.Embers;
+import hu.zoldleo.embers.blockentity.CrystalCellBlockEntity;
+import hu.zoldleo.embers.render.EmbersRenderTypes;
+
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
+
+public class CrystalCellBlockEntityRenderer implements BlockEntityRenderer<CrystalCellBlockEntity> {
+	public ResourceLocation texture = Embers.res("textures/block/crystal_material.png");
+	Random random = new Random();
+
+	public CrystalCellBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) {
+
+	}
+
+	@Override
+	public void render(CrystalCellBlockEntity blockEntity, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+		random.setSeed(blockEntity.seed);
+		float capacityFactor = 120000.0f;
+		double emberCapacity = blockEntity.renderCapacity;
+		double lerpCapacity = emberCapacity * partialTick + blockEntity.renderCapacityLast * (1-partialTick);
+		int numLayers = 2 + (int) Math.floor(lerpCapacity / capacityFactor) + 1;
+		int numLayersOld = numLayers - 1;
+		float growthFactor = getGrowthFactor(capacityFactor, lerpCapacity);
+		float layerHeight = 0.25f;
+		float height = layerHeight * numLayers * growthFactor + numLayersOld * layerHeight * (1-growthFactor);
+		float[] widths = new float[numLayers + 1];
+		float[] oldWidths = new float[numLayers + 1];
+		for (float i = 0; i < numLayers + 1; i++) {
+			float rand = random.nextFloat();
+			if (i < numLayers / 2.0f) {
+				widths[(int) i] = (i / (numLayers / 2.0f)) * (layerHeight * 0.1875f + layerHeight * 0.09375f * rand) * numLayers;
+			} else {
+				widths[(int) i] = ((numLayers - i) / (numLayers / 2.0f)) * (layerHeight * 0.1875f + layerHeight * 0.09375f * rand) * numLayers;
+			}
+			if (i >= numLayersOld)
+				continue;
+			if (i < numLayersOld / 2.0) {
+				oldWidths[(int) i] = (i / (numLayersOld / 2.0f)) * (layerHeight * 0.1875f + layerHeight * 0.09375f * rand) * numLayersOld;
+			} else {
+				oldWidths[(int) i] = ((numLayersOld - i) / (numLayersOld / 2.0f)) * (layerHeight * 0.1875f + layerHeight * 0.09375f * rand) * numLayersOld;
+			}
+		}
+
+		RenderSystem.setShaderTexture(0, texture);
+		RenderSystem.disableCull();
+		//RenderSystem.enableTexture();
+		VertexConsumer buffer = bufferSource.getBuffer(ConfigManager.RENDER_FALLBACK.get() ? EmbersRenderTypes.CRYSTAL_FALLBACK : EmbersRenderTypes.CRYSTAL);
+
+		for (float j = 0; j < 12; j++) { // TODO: why include 0?
+
+			poseStack.pushPose();
+
+			float scale = j / 12.0f;
+
+			poseStack.translate(0.5, height / 2.0f + 1.5, 0.5);
+			poseStack.scale(scale, scale, scale);
+
+
+			poseStack.mulPose(Axis.YP.rotationDegrees(partialTick + blockEntity.ticksExisted % 360));
+			poseStack.mulPose(Axis.XP.rotationDegrees(30.0f * (float) Math.sin(Math.toRadians((partialTick / 3.0f) + (blockEntity.ticksExisted / 3.0f) % 360))));
+
+			Matrix4f matrix4f = poseStack.last().pose();
+			for (int i = 0; i < widths.length - 1; i++) {
+				float width = widths[i] * growthFactor + oldWidths[i] * (1-growthFactor);
+				float nextWidth = widths[i + 1] * growthFactor + oldWidths[i + 1] * (1-growthFactor);
+                float bottom = layerHeight * i - height / 2.0f;
+                float top = bottom + layerHeight;
+				buffer.addVertex(matrix4f, -width, bottom, -width).setUv(0, 0).setColor(1, 1, 1, 0.65f);
+				buffer.addVertex(matrix4f, width, bottom, -width).setUv(0.5f, 0).setColor(1, 1, 1, 0.65f);
+                buffer.addVertex(matrix4f, nextWidth, top, -nextWidth).setUv(0.5f, 0.5f).setColor(1, 1, 1, 0.65f);
+				buffer.addVertex(matrix4f, -nextWidth, top, -nextWidth).setUv(0, 0.5f).setColor(1, 1, 1, 0.65f);
+
+				buffer.addVertex(matrix4f, -width, bottom, width).setUv(0, 0).setColor(1, 1, 1, 0.65f);
+				buffer.addVertex(matrix4f, width, bottom, width).setUv(0.5f, 0).setColor(1, 1, 1, 0.65f);
+				buffer.addVertex(matrix4f, nextWidth, top, nextWidth).setUv(0.5f, 0.5f).setColor(1, 1, 1, 0.65f);
+				buffer.addVertex(matrix4f, -nextWidth, top, nextWidth).setUv(0, 0.5f).setColor(1, 1, 1, 0.65f);
+
+				buffer.addVertex(matrix4f, -width, bottom, -width).setUv(0, 0).setColor(1, 1, 1, 0.65f);
+				buffer.addVertex(matrix4f, -width, bottom, width).setUv(0.5f, 0).setColor(1, 1, 1, 0.65f);
+				buffer.addVertex(matrix4f, -nextWidth, top, nextWidth).setUv(0.5f, 0.5f).setColor(1, 1, 1, 0.65f);
+				buffer.addVertex(matrix4f, -nextWidth, top, -nextWidth).setUv(0, 0.5f).setColor(1, 1, 1, 0.65f);
+
+				buffer.addVertex(matrix4f, width, bottom, -width).setUv(0, 0).setColor(1, 1, 1, 0.65f);
+				buffer.addVertex(matrix4f, width, bottom, width).setUv(0.5f, 0).setColor(1, 1, 1, 0.65f);
+				buffer.addVertex(matrix4f, nextWidth, top, nextWidth).setUv(0.5f, 0.5f).setColor(1, 1, 1, 0.65f);
+				buffer.addVertex(matrix4f, nextWidth, top, -nextWidth).setUv(0, 0.5f).setColor(1, 1, 1, 0.65f);
+			}
+			poseStack.popPose();
+		}
+
+		RenderSystem.enableCull();
+	}
+
+	private float getGrowthFactor(float capacityFactor, double emberCapacity) {
+		return (float) (emberCapacity % capacityFactor) / capacityFactor;
+	}
+
+    @Override
+    public @NotNull AABB getRenderBoundingBox(CrystalCellBlockEntity tile) {
+        return new AABB(Vec3.atLowerCornerWithOffset(tile.getBlockPos(), -1, 1, -1), Vec3.atLowerCornerWithOffset(tile.getBlockPos(), 2, 5, 2));
+    }
+}

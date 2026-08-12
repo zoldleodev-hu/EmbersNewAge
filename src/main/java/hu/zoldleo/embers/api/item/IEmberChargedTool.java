@@ -1,0 +1,7 @@
+package hu.zoldleo.embers.api.item;
+
+import net.minecraft.world.item.ItemStack;
+
+public interface IEmberChargedTool {
+	boolean hasEmber(ItemStack stack);
+}

@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:stonecutting",
-  "count": 1,
-  "ingredient": {
-    "item": "embers:ashen_brick"
-  },
-  "result": "embers:ashen_brick_stairs"
-}
