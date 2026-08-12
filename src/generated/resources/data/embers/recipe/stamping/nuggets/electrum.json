@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:nuggets/electrum"
+      }
+    }
+  ],
+  "type": "embers:stamping",
+  "fluid": {
+    "amount": 10,
+    "tag": "c:molten_electrum"
+  },
+  "output": {
+    "amount": 1,
+    "tag": "#c:nuggets/electrum"
+  },
+  "stamp": {
+    "item": "embers:nugget_stamp"
+  }
+}

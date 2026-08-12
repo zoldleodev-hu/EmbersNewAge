@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:gears/dawnstone"
+      }
+    }
+  ],
+  "type": "embers:stamping",
+  "fluid": {
+    "amount": 180,
+    "tag": "c:molten_dawnstone"
+  },
+  "output": {
+    "amount": 1,
+    "tag": "#c:gears/dawnstone"
+  },
+  "stamp": {
+    "item": "embers:gear_stamp"
+  }
+}

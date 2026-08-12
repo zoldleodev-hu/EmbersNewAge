@@ -1,0 +1,19 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/electrum"
+      }
+    }
+  ],
+  "type": "embers:melting",
+  "inputs": {
+    "tag": "c:ingots/electrum"
+  },
+  "output": {
+    "amount": 90,
+    "tag": "#c:molten_electrum"
+  }
+}

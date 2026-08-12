@@ -1,0 +1,36 @@
+{
+  "type": "embers:alchemy",
+  "aspects": [
+    {
+      "tag": "embers:aspectus/copper"
+    },
+    {
+      "tag": "embers:aspectus/dawnstone"
+    }
+  ],
+  "failure": {
+    "count": 1,
+    "id": "embers:alchemical_waste"
+  },
+  "inputs": [
+    {
+      "tag": "c:gunpowders"
+    },
+    {
+      "tag": "c:gunpowders"
+    },
+    {
+      "item": "embers:ember_shard"
+    },
+    {
+      "item": "embers:ember_shard"
+    }
+  ],
+  "output": {
+    "count": 1,
+    "id": "embers:glimmer_crystal"
+  },
+  "tablet": {
+    "tag": "c:gems/quartz"
+  }
+}

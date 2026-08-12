@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "embers:mechanical_core"
+    },
+    "C": {
+      "tag": "c:storage_blocks/copper"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "P": {
+      "tag": "c:plates/copper"
+    }
+  },
+  "pattern": [
+    "PPP",
+    "ICI",
+    " B "
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:hearth_coil"
+  }
+}

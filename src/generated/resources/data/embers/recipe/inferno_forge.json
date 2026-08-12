@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "tag": "c:storage_blocks/dawnstone"
+    },
+    "C": {
+      "tag": "c:storage_blocks/copper"
+    },
+    "D": {
+      "tag": "c:ingots/dawnstone"
+    },
+    "P": {
+      "tag": "c:plates/iron"
+    },
+    "S": {
+      "item": "embers:caminite_bricks"
+    },
+    "W": {
+      "item": "embers:wildfire_core"
+    }
+  },
+  "pattern": [
+    "BPB",
+    "DCD",
+    "SWS"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:inferno_forge"
+  }
+}

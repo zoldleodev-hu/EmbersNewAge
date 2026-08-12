@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "tag": "c:ingots/copper"
+    },
+    "D": {
+      "tag": "c:ingots/dawnstone"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "P": {
+      "tag": "c:plates/copper"
+    },
+    "X": {
+      "tag": "c:plates/iron"
+    }
+  },
+  "pattern": [
+    " X ",
+    "DCD",
+    "IPI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:copper_charger"
+  }
+}

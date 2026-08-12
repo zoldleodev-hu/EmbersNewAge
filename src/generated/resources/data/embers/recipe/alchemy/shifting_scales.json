@@ -1,0 +1,42 @@
+{
+  "type": "embers:alchemy",
+  "aspects": [
+    {
+      "tag": "embers:aspectus/lead"
+    },
+    {
+      "tag": "embers:aspectus/iron"
+    },
+    {
+      "tag": "embers:aspectus/silver"
+    }
+  ],
+  "failure": {
+    "count": 1,
+    "id": "embers:alchemical_waste"
+  },
+  "inputs": [
+    {
+      "tag": "c:plates/lead"
+    },
+    {
+      "tag": "c:plates/lead"
+    },
+    {
+      "tag": "c:plates/lead"
+    },
+    {
+      "tag": "c:plates/lead"
+    },
+    {
+      "tag": "c:plates/lead"
+    }
+  ],
+  "output": {
+    "count": 1,
+    "id": "embers:shifting_scales"
+  },
+  "tablet": {
+    "item": "embers:ashen_fabric"
+  }
+}

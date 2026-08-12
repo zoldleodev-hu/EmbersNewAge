@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "tag": "c:ingots/lead"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "S": {
+      "tag": "c:rods/wooden"
+    }
+  },
+  "pattern": [
+    "IBI",
+    "ISI",
+    " S "
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:tinker_hammer"
+  }
+}

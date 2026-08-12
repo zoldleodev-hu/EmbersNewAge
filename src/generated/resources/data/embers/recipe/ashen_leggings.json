@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": {
+      "item": "embers:ashen_fabric"
+    },
+    "D": {
+      "tag": "c:ingots/dawnstone"
+    }
+  },
+  "pattern": [
+    "CCC",
+    "D D",
+    "D D"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:ashen_leggings"
+  }
+}

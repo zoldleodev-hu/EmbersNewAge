@@ -1,0 +1,39 @@
+{
+  "type": "embers:alchemy",
+  "aspects": [
+    {
+      "tag": "embers:aspectus/copper"
+    },
+    {
+      "tag": "embers:aspectus/iron"
+    },
+    {
+      "tag": "embers:aspectus/lead"
+    },
+    {
+      "tag": "embers:aspectus/silver"
+    }
+  ],
+  "failure": {
+    "count": 1,
+    "id": "embers:alchemical_waste"
+  },
+  "inputs": [
+    {
+      "tag": "c:gems/quartz"
+    },
+    {
+      "item": "minecraft:clay_ball"
+    },
+    {
+      "tag": "c:gems/lapis"
+    }
+  ],
+  "output": {
+    "count": 4,
+    "id": "embers:isolated_materia"
+  },
+  "tablet": {
+    "tag": "c:ingots/iron"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "E": {
+      "item": "embers:ember_shard"
+    },
+    "I": {
+      "tag": "c:ingots/dawnstone"
+    },
+    "S": {
+      "tag": "c:plates/silver"
+    },
+    "W": {
+      "tag": "c:rods/wooden"
+    }
+  },
+  "pattern": [
+    "SES",
+    "IWI",
+    " W "
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:cinder_staff"
+  }
+}

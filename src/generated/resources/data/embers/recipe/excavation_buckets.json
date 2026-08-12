@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "tag": "c:storage_blocks/lead"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "P": {
+      "tag": "c:plates/lead"
+    }
+  },
+  "pattern": [
+    "PPP",
+    "BIP",
+    "PPP"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:excavation_buckets"
+  }
+}

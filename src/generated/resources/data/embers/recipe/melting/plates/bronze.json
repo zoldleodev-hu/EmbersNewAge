@@ -1,0 +1,19 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:plates/bronze"
+      }
+    }
+  ],
+  "type": "embers:melting",
+  "inputs": {
+    "tag": "c:plates/bronze"
+  },
+  "output": {
+    "amount": 90,
+    "tag": "#c:molten_bronze"
+  }
+}

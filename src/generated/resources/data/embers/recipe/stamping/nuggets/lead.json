@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:nuggets/lead"
+      }
+    }
+  ],
+  "type": "embers:stamping",
+  "fluid": {
+    "amount": 10,
+    "tag": "c:molten_lead"
+  },
+  "output": {
+    "amount": 1,
+    "tag": "#c:nuggets/lead"
+  },
+  "stamp": {
+    "item": "embers:nugget_stamp"
+  }
+}

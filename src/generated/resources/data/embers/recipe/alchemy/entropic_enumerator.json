@@ -1,0 +1,42 @@
+{
+  "type": "embers:alchemy",
+  "aspects": [
+    {
+      "tag": "embers:aspectus/lead"
+    },
+    {
+      "tag": "embers:aspectus/dawnstone"
+    }
+  ],
+  "failure": {
+    "count": 1,
+    "id": "embers:alchemical_waste"
+  },
+  "inputs": [
+    {
+      "tag": "c:ingots/copper"
+    },
+    {
+      "tag": "c:ingots/iron"
+    },
+    {
+      "tag": "c:ingots/gold"
+    },
+    {
+      "tag": "c:ingots/lead"
+    },
+    {
+      "tag": "c:ingots/silver"
+    },
+    {
+      "tag": "c:ingots/dawnstone"
+    }
+  ],
+  "output": {
+    "count": 1,
+    "id": "embers:entropic_enumerator"
+  },
+  "tablet": {
+    "item": "embers:ashen_tile"
+  }
+}

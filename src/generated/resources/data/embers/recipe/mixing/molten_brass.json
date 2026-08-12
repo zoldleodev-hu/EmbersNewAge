@@ -1,0 +1,26 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/brass"
+      }
+    }
+  ],
+  "type": "embers:mixing",
+  "inputs": [
+    {
+      "amount": 2,
+      "tag": "c:molten_copper"
+    },
+    {
+      "amount": 2,
+      "tag": "c:molten_zinc"
+    }
+  ],
+  "output": {
+    "amount": 4,
+    "tag": "#c:molten_brass"
+  }
+}

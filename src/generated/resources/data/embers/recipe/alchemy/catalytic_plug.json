@@ -1,0 +1,33 @@
+{
+  "type": "embers:alchemy",
+  "aspects": [
+    {
+      "tag": "embers:aspectus/dawnstone"
+    },
+    {
+      "tag": "embers:aspectus/silver"
+    }
+  ],
+  "failure": {
+    "count": 1,
+    "id": "embers:alchemical_waste"
+  },
+  "inputs": [
+    {
+      "item": "embers:fluid_pipe"
+    },
+    {
+      "tag": "c:glass_blocks"
+    },
+    {
+      "item": "embers:fluid_pipe"
+    }
+  ],
+  "output": {
+    "count": 1,
+    "id": "embers:catalytic_plug"
+  },
+  "tablet": {
+    "tag": "c:ingots/silver"
+  }
+}

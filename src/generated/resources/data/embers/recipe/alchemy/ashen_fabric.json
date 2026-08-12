@@ -1,0 +1,39 @@
+{
+  "type": "embers:alchemy",
+  "aspects": [
+    {
+      "tag": "embers:aspectus/iron"
+    },
+    {
+      "tag": "embers:aspectus/lead"
+    },
+    {
+      "tag": "embers:aspectus/dawnstone"
+    }
+  ],
+  "failure": {
+    "count": 1,
+    "id": "embers:alchemical_waste"
+  },
+  "inputs": [
+    {
+      "tag": "c:dusts/ash"
+    },
+    {
+      "tag": "c:dusts/ash"
+    },
+    {
+      "tag": "c:strings"
+    },
+    {
+      "tag": "c:strings"
+    }
+  ],
+  "output": {
+    "count": 1,
+    "id": "embers:ashen_fabric"
+  },
+  "tablet": {
+    "tag": "minecraft:wool"
+  }
+}

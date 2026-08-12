@@ -1,0 +1,30 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "curios"
+    }
+  ],
+  "type": "embers:alchemy",
+  "aspects": [
+    {
+      "tag": "embers:aspectus/silver"
+    }
+  ],
+  "failure": {
+    "count": 1,
+    "id": "embers:alchemical_waste"
+  },
+  "inputs": [
+    {
+      "item": "embers:explosion_charm"
+    }
+  ],
+  "output": {
+    "count": 1,
+    "id": "embers:explosion_pedestal"
+  },
+  "tablet": {
+    "item": "embers:alchemy_pedestal"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "type": "embers:alchemy",
+  "aspects": [
+    {
+      "tag": "embers:aspectus/copper"
+    },
+    {
+      "tag": "embers:aspectus/lead"
+    },
+    {
+      "tag": "embers:aspectus/silver"
+    }
+  ],
+  "failure": {
+    "count": 1,
+    "id": "embers:alchemical_waste"
+  },
+  "inputs": [
+    {
+      "tag": "c:ingots/copper"
+    },
+    {
+      "item": "embers:archaic_circuit"
+    },
+    {
+      "tag": "c:ingots/copper"
+    },
+    {
+      "item": "embers:archaic_circuit"
+    }
+  ],
+  "output": {
+    "count": 1,
+    "id": "embers:intelligent_apparatus"
+  },
+  "tablet": {
+    "tag": "c:plates/copper"
+  }
+}

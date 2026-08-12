@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "tag": "c:ingots/lead"
+    },
+    "P": {
+      "item": "embers:item_pipe"
+    }
+  },
+  "pattern": [
+    " P ",
+    "I I"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:item_dropper"
+  }
+}

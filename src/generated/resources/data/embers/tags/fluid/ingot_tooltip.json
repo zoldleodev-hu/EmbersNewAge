@@ -1,0 +1,26 @@
+{
+  "values": [
+    "#c:molten_iron",
+    "#c:molten_gold",
+    "#c:molten_copper",
+    "#c:molten_lead",
+    "#c:molten_silver",
+    "#c:molten_dawnstone",
+    "#c:molten_dwarven_mithril",
+    "#c:molten_nickel",
+    "#c:molten_tin",
+    "#c:molten_aluminum",
+    "#c:molten_zinc",
+    "#c:molten_platinum",
+    "#c:molten_uranium",
+    "#c:molten_bronze",
+    "#c:molten_electrum",
+    "#c:molten_brass",
+    "#c:molten_constantan",
+    "#c:molten_invar",
+    {
+      "id": "#tconstruct:tooltips/metal",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "neoforge:not",
+          "value": {
+            "type": "neoforge:tag_empty",
+            "tag": "c:ores/uranium"
+          }
+        }
+      ]
+    }
+  ],
+  "type": "embers:melting",
+  "bonus": {
+    "amount": 20,
+    "tag": "#c:molten_lead"
+  },
+  "inputs": {
+    "tag": "c:ores/uranium"
+  },
+  "output": {
+    "amount": 240,
+    "tag": "#c:molten_uranium"
+  }
+}

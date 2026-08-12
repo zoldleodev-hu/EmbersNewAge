@@ -1,0 +1,15 @@
+{
+  "type": "embers:melting",
+  "inputs": [
+    {
+      "item": "minecraft:soul_sand"
+    },
+    {
+      "item": "minecraft:soul_soil"
+    }
+  ],
+  "output": {
+    "amount": 100,
+    "id": "embers:soul_crude"
+  }
+}

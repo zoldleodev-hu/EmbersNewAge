@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "embers:caminite_tiles"
+  },
+  "result": {
+    "count": 1,
+    "id": "embers:caminite_tiles_stairs"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "embers:stamping",
+  "fluid": {
+    "amount": 90,
+    "tag": "c:molten_iron"
+  },
+  "input": {
+    "item": "embers:ember_shard"
+  },
+  "output": {
+    "count": 1,
+    "id": "embers:iron_aspectus"
+  },
+  "stamp": {
+    "item": "embers:ingot_stamp"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:nuggets/platinum"
+      }
+    }
+  ],
+  "type": "embers:stamping",
+  "fluid": {
+    "amount": 10,
+    "tag": "c:molten_platinum"
+  },
+  "output": {
+    "amount": 1,
+    "tag": "#c:nuggets/platinum"
+  },
+  "stamp": {
+    "item": "embers:nugget_stamp"
+  }
+}

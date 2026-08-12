@@ -1,0 +1,32 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "neoforge:tag_empty",
+          "tag": "c:ingots/tin"
+        },
+        {
+          "type": "neoforge:not",
+          "value": {
+            "type": "neoforge:tag_empty",
+            "tag": "c:storage_blocks/raw_zinc"
+          }
+        }
+      ]
+    }
+  ],
+  "type": "embers:melting",
+  "bonus": {
+    "amount": 90,
+    "tag": "#c:molten_iron"
+  },
+  "inputs": {
+    "tag": "c:storage_blocks/raw_zinc"
+  },
+  "output": {
+    "amount": 1080,
+    "tag": "#c:molten_zinc"
+  }
+}

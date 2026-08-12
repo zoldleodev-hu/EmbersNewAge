@@ -1,0 +1,39 @@
+{
+  "type": "embers:alchemy",
+  "aspects": [
+    {
+      "tag": "embers:aspectus/copper"
+    },
+    {
+      "tag": "embers:aspectus/silver"
+    },
+    {
+      "tag": "embers:aspectus/dawnstone"
+    }
+  ],
+  "failure": {
+    "count": 1,
+    "id": "embers:alchemical_waste"
+  },
+  "inputs": [
+    {
+      "tag": "c:plates/dawnstone"
+    },
+    {
+      "tag": "c:plates/silver"
+    },
+    {
+      "tag": "c:plates/dawnstone"
+    },
+    {
+      "tag": "c:plates/silver"
+    }
+  ],
+  "output": {
+    "count": 1,
+    "id": "embers:focal_lens"
+  },
+  "tablet": {
+    "item": "embers:ember_crystal"
+  }
+}

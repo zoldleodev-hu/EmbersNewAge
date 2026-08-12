@@ -1,0 +1,34 @@
+{
+  "values": [
+    "embers:ember_bore",
+    "embers:ember_bore_edge",
+    "embers:ember_activator",
+    "embers:melter",
+    "embers:mixer_centrifuge",
+    "embers:pressure_refinery",
+    "embers:hearth_coil",
+    "embers:hearth_coil_edge",
+    "embers:reservoir",
+    "embers:reservoir_edge",
+    "embers:caminite_ring",
+    "embers:caminite_ring_edge",
+    "embers:caminite_gauge",
+    "embers:caminite_gauge_edge",
+    "embers:caminite_valve",
+    "embers:caminite_valve_edge",
+    "embers:crystal_cell",
+    "embers:crystal_cell_edge",
+    "embers:alchemy_pedestal",
+    "embers:mechanical_pump",
+    "embers:field_chart",
+    "embers:field_chart_edge",
+    "embers:combustion_chamber",
+    "embers:catalysis_chamber",
+    "embers:inferno_forge",
+    "#embers:crystal_seeds",
+    {
+      "id": "embers:explosion_pedestal",
+      "required": false
+    }
+  ]
+}

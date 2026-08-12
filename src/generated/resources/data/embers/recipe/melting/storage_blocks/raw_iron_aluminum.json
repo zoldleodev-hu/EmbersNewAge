@@ -1,0 +1,39 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "neoforge:tag_empty",
+          "tag": "c:ingots/nickel"
+        },
+        {
+          "type": "neoforge:not",
+          "value": {
+            "type": "neoforge:tag_empty",
+            "tag": "c:storage_blocks/raw_iron"
+          }
+        },
+        {
+          "type": "neoforge:not",
+          "value": {
+            "type": "neoforge:tag_empty",
+            "tag": "c:ingots/aluminum"
+          }
+        }
+      ]
+    }
+  ],
+  "type": "embers:melting",
+  "bonus": {
+    "amount": 90,
+    "tag": "#c:molten_aluminum"
+  },
+  "inputs": {
+    "tag": "c:storage_blocks/raw_iron"
+  },
+  "output": {
+    "amount": 1080,
+    "tag": "#c:molten_iron"
+  }
+}

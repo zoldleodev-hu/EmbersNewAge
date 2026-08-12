@@ -1,0 +1,19 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:plates/dawnstone"
+      }
+    }
+  ],
+  "type": "embers:melting",
+  "inputs": {
+    "tag": "c:plates/dawnstone"
+  },
+  "output": {
+    "amount": 90,
+    "tag": "#c:molten_dawnstone"
+  }
+}

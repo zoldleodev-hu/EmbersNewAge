@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "embers:ashen_stone"
+    },
+    "C": {
+      "tag": "c:storage_blocks/copper"
+    },
+    "P": {
+      "tag": "c:plates/silver"
+    }
+  },
+  "pattern": [
+    "P",
+    "C",
+    "A"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:heat_insulation"
+  }
+}

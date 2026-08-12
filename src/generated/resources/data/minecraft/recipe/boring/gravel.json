@@ -1,0 +1,15 @@
+{
+  "type": "embers:boring",
+  "amount": 5,
+  "biomes": [],
+  "chance": 0.9,
+  "dimensions": [],
+  "max_height": 2147483647,
+  "min_height": -2147483648,
+  "output": {
+    "count": 1,
+    "id": "minecraft:gravel"
+  },
+  "required_block": "c:gravels",
+  "weight": 50
+}

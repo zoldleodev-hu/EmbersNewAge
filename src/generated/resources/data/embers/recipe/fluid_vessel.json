@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "embers:caminite_brick"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "P": {
+      "tag": "c:plates/iron"
+    }
+  },
+  "pattern": [
+    "B B",
+    "P P",
+    "BIB"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:fluid_vessel"
+  }
+}

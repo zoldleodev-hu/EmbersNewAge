@@ -1,0 +1,17 @@
+{
+  "type": "embers:boring",
+  "amount": 3,
+  "biomes": [],
+  "chance": -1.0,
+  "dimensions": [
+    "minecraft:the_nether"
+  ],
+  "max_height": 7,
+  "min_height": -2147483648,
+  "output": {
+    "count": 1,
+    "id": "embers:ember_crystal"
+  },
+  "required_block": "embers:world_bottom",
+  "weight": 20
+}

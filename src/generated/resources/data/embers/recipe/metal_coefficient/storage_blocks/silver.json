@@ -1,0 +1,5 @@
+{
+  "type": "embers:metal_coefficient",
+  "block_tag": "#c:storage_blocks/silver",
+  "coefficient": 3.0
+}

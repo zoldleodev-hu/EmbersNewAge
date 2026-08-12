@@ -1,0 +1,19 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:storage_blocks/zinc"
+      }
+    }
+  ],
+  "type": "embers:melting",
+  "inputs": {
+    "tag": "c:storage_blocks/zinc"
+  },
+  "output": {
+    "amount": 810,
+    "tag": "#c:molten_zinc"
+  }
+}

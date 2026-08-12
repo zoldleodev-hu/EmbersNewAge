@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "embers:caminite_brick"
+    },
+    "E": {
+      "item": "embers:fluid_pipe"
+    },
+    "I": {
+      "item": "embers:fluid_extractor"
+    },
+    "P": {
+      "tag": "c:plates/iron"
+    }
+  },
+  "pattern": [
+    "EPE",
+    "PPP",
+    "BIB"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:mechanical_pump"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:gears/aluminum"
+      }
+    }
+  ],
+  "type": "embers:melting",
+  "inputs": {
+    "tag": "c:gears/aluminum"
+  },
+  "output": {
+    "amount": 180,
+    "tag": "#c:molten_aluminum"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "tag": "c:plates/silver"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    "P",
+    "I"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:clockwork_attenuator"
+  }
+}

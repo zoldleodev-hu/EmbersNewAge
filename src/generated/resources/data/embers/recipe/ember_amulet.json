@@ -1,0 +1,30 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "curios"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": {
+      "item": "embers:ember_crystal_cluster"
+    },
+    "L": {
+      "tag": "c:leathers"
+    },
+    "N": {
+      "tag": "c:ingots/dawnstone"
+    }
+  },
+  "pattern": [
+    " L ",
+    "L L",
+    "NCN"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:ember_amulet"
+  }
+}

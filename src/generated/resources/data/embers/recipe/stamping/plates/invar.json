@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:plates/invar"
+      }
+    }
+  ],
+  "type": "embers:stamping",
+  "fluid": {
+    "amount": 90,
+    "tag": "c:molten_invar"
+  },
+  "output": {
+    "amount": 1,
+    "tag": "#c:plates/invar"
+  },
+  "stamp": {
+    "item": "embers:plate_stamp"
+  }
+}

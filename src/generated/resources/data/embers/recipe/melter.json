@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "embers:caminite_bricks"
+    },
+    "C": {
+      "tag": "c:ingots/copper"
+    },
+    "F": {
+      "item": "minecraft:furnace"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "P": {
+      "item": "embers:caminite_plate"
+    }
+  },
+  "pattern": [
+    "BPB",
+    "BCB",
+    "IFI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:melter"
+  }
+}

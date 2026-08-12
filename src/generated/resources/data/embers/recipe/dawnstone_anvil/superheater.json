@@ -1,0 +1,13 @@
+{
+  "type": "embers:tool_augment",
+  "augment": "embers:superheater",
+  "input": {
+    "item": "embers:superheater"
+  },
+  "tool": {
+    "type": "embers:heat_ingredient",
+    "base": {
+      "tag": "embers:augmentables/tools"
+    }
+  }
+}

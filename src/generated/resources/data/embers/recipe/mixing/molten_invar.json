@@ -1,0 +1,26 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/invar"
+      }
+    }
+  ],
+  "type": "embers:mixing",
+  "inputs": [
+    {
+      "amount": 2,
+      "tag": "c:molten_iron"
+    },
+    {
+      "amount": 1,
+      "tag": "c:molten_nickel"
+    }
+  ],
+  "output": {
+    "amount": 3,
+    "tag": "#c:molten_invar"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "embers:stamping",
+  "fluid": {
+    "amount": 90,
+    "tag": "c:molten_silver"
+  },
+  "input": {
+    "item": "embers:ember_shard"
+  },
+  "output": {
+    "count": 1,
+    "id": "embers:silver_aspectus"
+  },
+  "stamp": {
+    "item": "embers:ingot_stamp"
+  }
+}

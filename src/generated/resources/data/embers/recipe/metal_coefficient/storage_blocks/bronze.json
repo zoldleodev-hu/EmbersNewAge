@@ -1,0 +1,14 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:storage_blocks/bronze"
+      }
+    }
+  ],
+  "type": "embers:metal_coefficient",
+  "block_tag": "#c:storage_blocks/bronze",
+  "coefficient": 2.625
+}

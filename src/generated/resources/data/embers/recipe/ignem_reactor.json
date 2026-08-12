@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "embers:caminite_bricks"
+    },
+    "C": {
+      "tag": "c:ingots/copper"
+    },
+    "S": {
+      "tag": "c:plates/silver"
+    },
+    "W": {
+      "item": "embers:wildfire_core"
+    }
+  },
+  "pattern": [
+    "CCC",
+    "CWC",
+    "SBS"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:ignem_reactor"
+  }
+}

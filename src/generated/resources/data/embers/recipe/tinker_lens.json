@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "tag": "c:ingots/iron"
+    },
+    "E": {
+      "tag": "c:nuggets/lead"
+    },
+    "I": {
+      "tag": "c:plates/lead"
+    },
+    "P": {
+      "tag": "c:glass_blocks"
+    }
+  },
+  "pattern": [
+    "BE ",
+    "IPE",
+    "BE "
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:tinker_lens"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "embers:stamping",
+  "fluid": {
+    "amount": 90,
+    "tag": "c:molten_lead"
+  },
+  "input": {
+    "item": "embers:ember_shard"
+  },
+  "output": {
+    "count": 1,
+    "id": "embers:lead_aspectus"
+  },
+  "stamp": {
+    "item": "embers:ingot_stamp"
+  }
+}

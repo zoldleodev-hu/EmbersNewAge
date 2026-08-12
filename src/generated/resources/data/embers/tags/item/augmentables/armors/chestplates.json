@@ -1,0 +1,13 @@
+{
+  "values": [
+    "#minecraft:chest_armor",
+    {
+      "id": "miapi:modular_chestplate",
+      "required": false
+    },
+    {
+      "id": "miapi:modular_elytra",
+      "required": false
+    }
+  ]
+}

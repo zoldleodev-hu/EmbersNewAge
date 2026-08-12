@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:plates/dawnstone"
+      }
+    }
+  ],
+  "type": "embers:stamping",
+  "fluid": {
+    "amount": 90,
+    "tag": "c:molten_dawnstone"
+  },
+  "output": {
+    "amount": 1,
+    "tag": "#c:plates/dawnstone"
+  },
+  "stamp": {
+    "item": "embers:plate_stamp"
+  }
+}

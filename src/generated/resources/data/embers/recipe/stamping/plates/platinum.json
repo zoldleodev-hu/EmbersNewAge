@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:plates/platinum"
+      }
+    }
+  ],
+  "type": "embers:stamping",
+  "fluid": {
+    "amount": 90,
+    "tag": "c:molten_platinum"
+  },
+  "output": {
+    "amount": 1,
+    "tag": "#c:plates/platinum"
+  },
+  "stamp": {
+    "item": "embers:plate_stamp"
+  }
+}

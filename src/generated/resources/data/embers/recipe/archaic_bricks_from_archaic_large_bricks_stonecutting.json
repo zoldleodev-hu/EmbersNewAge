@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "embers:archaic_large_bricks"
+  },
+  "result": {
+    "count": 1,
+    "id": "embers:archaic_bricks"
+  }
+}

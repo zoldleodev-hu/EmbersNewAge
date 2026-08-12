@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:nuggets/brass"
+      }
+    }
+  ],
+  "type": "embers:stamping",
+  "fluid": {
+    "amount": 10,
+    "tag": "c:molten_brass"
+  },
+  "output": {
+    "amount": 1,
+    "tag": "#c:nuggets/brass"
+  },
+  "stamp": {
+    "item": "embers:nugget_stamp"
+  }
+}

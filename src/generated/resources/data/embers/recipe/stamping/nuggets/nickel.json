@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:nuggets/nickel"
+      }
+    }
+  ],
+  "type": "embers:stamping",
+  "fluid": {
+    "amount": 10,
+    "tag": "c:molten_nickel"
+  },
+  "output": {
+    "amount": 1,
+    "tag": "#c:nuggets/nickel"
+  },
+  "stamp": {
+    "item": "embers:nugget_stamp"
+  }
+}

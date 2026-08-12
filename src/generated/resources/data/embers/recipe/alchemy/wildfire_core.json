@@ -1,0 +1,42 @@
+{
+  "type": "embers:alchemy",
+  "aspects": [
+    {
+      "tag": "embers:aspectus/copper"
+    },
+    {
+      "tag": "embers:aspectus/iron"
+    },
+    {
+      "tag": "embers:aspectus/silver"
+    },
+    {
+      "tag": "embers:aspectus/dawnstone"
+    }
+  ],
+  "failure": {
+    "count": 1,
+    "id": "embers:alchemical_waste"
+  },
+  "inputs": [
+    {
+      "tag": "c:ingots/dawnstone"
+    },
+    {
+      "item": "embers:ember_crystal_cluster"
+    },
+    {
+      "tag": "c:ingots/dawnstone"
+    },
+    {
+      "tag": "c:plates/copper"
+    }
+  ],
+  "output": {
+    "count": 1,
+    "id": "embers:wildfire_core"
+  },
+  "tablet": {
+    "item": "embers:ancient_motive_core"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "neoforge:not",
+          "value": {
+            "type": "neoforge:tag_empty",
+            "tag": "c:storage_blocks/raw_silver"
+          }
+        }
+      ]
+    }
+  ],
+  "type": "embers:melting",
+  "bonus": {
+    "amount": 90,
+    "tag": "#c:molten_lead"
+  },
+  "inputs": {
+    "tag": "c:storage_blocks/raw_silver"
+  },
+  "output": {
+    "amount": 1080,
+    "tag": "#c:molten_silver"
+  }
+}

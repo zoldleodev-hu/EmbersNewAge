@@ -1,0 +1,14 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:storage_blocks/tin"
+      }
+    }
+  ],
+  "type": "embers:metal_coefficient",
+  "block_tag": "#c:storage_blocks/tin",
+  "coefficient": 2.85
+}

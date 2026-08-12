@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "tag": "c:plates/copper"
+    },
+    "L": {
+      "tag": "c:leathers"
+    },
+    "P": {
+      "item": "embers:sealed_planks"
+    }
+  },
+  "pattern": [
+    "CPC",
+    "LLL",
+    "CPC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:atmospheric_bellows"
+  }
+}

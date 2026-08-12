@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "tag": "c:ingots/lead"
+    },
+    "P": {
+      "tag": "c:plates/lead"
+    }
+  },
+  "pattern": [
+    "I I",
+    "I I",
+    "IPI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:bin"
+  }
+}

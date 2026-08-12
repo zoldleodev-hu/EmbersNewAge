@@ -1,0 +1,31 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": {
+    "type": "neoforge:and",
+    "values": [
+      {
+        "type": "neoforge:or",
+        "values": [
+          "#minecraft:is_overworld"
+        ]
+      },
+      {
+        "type": "neoforge:not",
+        "value": {
+          "type": "neoforge:or",
+          "values": [
+            "#c:is_mushroom",
+            "minecraft:deep_dark",
+            "#c:no_default_monsters"
+          ]
+        }
+      }
+    ]
+  },
+  "spawners": {
+    "type": "embers:ancient_golem",
+    "maxCount": 1,
+    "minCount": 1,
+    "weight": 15
+  }
+}

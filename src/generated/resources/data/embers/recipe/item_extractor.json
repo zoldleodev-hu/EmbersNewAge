@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "embers:caminite_plate"
+    },
+    "P": {
+      "item": "embers:item_pipe"
+    },
+    "R": {
+      "tag": "c:dusts/redstone"
+    }
+  },
+  "pattern": [
+    " R ",
+    "PBP",
+    " R "
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:item_extractor"
+  }
+}

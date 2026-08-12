@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "embers:caminite_bricks"
+    },
+    "C": {
+      "item": "embers:wildfire_core"
+    },
+    "D": {
+      "tag": "c:plates/dawnstone"
+    },
+    "P": {
+      "tag": "c:plates/silver"
+    },
+    "S": {
+      "tag": "c:ingots/silver"
+    }
+  },
+  "pattern": [
+    "S S",
+    "DCD",
+    "BPB"
+  ],
+  "result": {
+    "count": 1,
+    "id": "embers:ember_injector"
+  }
+}

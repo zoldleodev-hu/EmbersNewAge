@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "tag": "c:ingots/lead"
+    },
+    "L": {
+      "item": "embers:item_pipe"
+    },
+    "P": {
+      "tag": "c:plates/lead"
+    }
+  },
+  "pattern": [
+    "PLP",
+    "ILI",
+    "I I"
+  ],
+  "result": {
+    "count": 3,
+    "id": "embers:item_transfer"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": {
+      "item": "embers:ember_shard"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "P": {
+      "tag": "c:plates/iron"
+    }
+  },
+  "pattern": [
+    "P",
+    "E",
+    "I"
+  ],
+  "result": {
+    "count": 4,
+    "id": "embers:ember_lantern"
+  }
+}

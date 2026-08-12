@@ -1,0 +1,15 @@
+{
+  "type": "embers:boring",
+  "amount": 5,
+  "biomes": [],
+  "chance": 1.0,
+  "dimensions": [],
+  "max_height": 2147483647,
+  "min_height": -2147483648,
+  "output": {
+    "count": 1,
+    "id": "minecraft:flint"
+  },
+  "required_block": "c:gravels",
+  "weight": 5
+}
