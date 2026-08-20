@@ -184,6 +184,7 @@ public class EmbersLang extends LanguageProvider {
 		addItem(RegistryManager.ASHEN_BOOTS, "Ashen Boots");
 		addItem(RegistryManager.GLIMMER_CRYSTAL, "Glimmer Crystal");
 		addItem(RegistryManager.GLIMMER_LAMP, "Glimmer Lamp");
+        addItem(RegistryManager.DAWNSTONE_SHIELD, "Dawnstone Shield");
 
 		addItem(RegistryManager.EMBER_CRYSTAL, "Ember Crystal");
 		addItem(RegistryManager.EMBER_SHARD, "Ember Shard");
@@ -282,6 +283,7 @@ public class EmbersLang extends LanguageProvider {
 
 		addItem(RegistryManager.ANCIENT_GOLEM_SPAWN_EGG, "Ancient Golem Spawn Egg");
 		addEntityType(RegistryManager.ANCIENT_GOLEM, "Ancient Golem");
+		addEntityType(RegistryManager.EMBER_WISP, "Ember Wisp");
 		addEntityType(RegistryManager.EMBER_PACKET, "Ember Packet");
 		addEntityType(RegistryManager.EMBER_PROJECTILE, "Ember Projectile");
 		addEntityType(RegistryManager.GLIMMER_PROJECTILE, "Glimmer Projectile");
@@ -414,6 +416,7 @@ public class EmbersLang extends LanguageProvider {
 		add(Embers.MODID + ".tooltip.heat_amount", "Heat:");
 		add(Embers.MODID + ".tooltip.heat_debug", "Heat: %s/%s");
 		add(Embers.MODID + ".tooltip.heat_level", "Level: ");
+		add(Embers.MODID + ".tooltip.heat_level.max", " (MAX)");
 		add(Embers.MODID + ".tooltip.augment_slots", "Augment slots: ");
 		add(Embers.MODID + ".tooltip.augments", "Augments:");
 

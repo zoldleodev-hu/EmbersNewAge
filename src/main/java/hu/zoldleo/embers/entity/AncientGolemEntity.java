@@ -30,20 +30,20 @@ import org.jetbrains.annotations.NotNull;
 public class AncientGolemEntity extends Monster {
 	public AncientGolemEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
 		super(pEntityType, pLevel);
-		this.xpReward = 10;
+		xpReward = 10;
 	}
 
 	protected void registerGoals() {
-		this.goalSelector.addGoal(0, new FloatGoal(this));
-		this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
-		this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-		this.addBehaviourGoals();
+		goalSelector.addGoal(0, new FloatGoal(this));
+		goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
+		goalSelector.addGoal(8, new RandomLookAroundGoal(this));
+		addBehaviourGoals();
 	}
 
 	protected void addBehaviourGoals() {
-		this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 0.46D, false));
-		this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 0.46D));
-		this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+		goalSelector.addGoal(2, new MeleeAttackGoal(this, 0.46D, false));
+		goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 0.46D));
+		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {
@@ -59,11 +59,14 @@ public class AncientGolemEntity extends Monster {
 	public void tick() {
 		super.tick();
 		//this.yBodyRot = this.yHeadRot;
-		if (!this.isRemoved() && this.getHealth() > 0 && this.tickCount % 100 == 0 && this.getTarget() != null) {
+		if (!isRemoved() && getHealth() > 0 && tickCount % 100 == 0 && getTarget() != null) {
 			if (!level().isClientSide()) {
 				playSound(EmbersSounds.FIREBALL.get(), 1.0f, 1.0f);
 				EmberProjectileEntity proj = RegistryManager.EMBER_PROJECTILE.get().create(level());
-				DamageSource damage = new DamageEmber(this.level().registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(EmbersDamageTypes.EMBER_KEY), proj, this);
+                if (proj == null)
+                    return;
+
+				DamageSource damage = new DamageEmber(level().registryAccess().registry(Registries.DAMAGE_TYPE).orElseThrow().getHolderOrThrow(EmbersDamageTypes.EMBER_KEY), proj, this);
 				EffectDamage effect = new EffectDamage(4.0f, e -> damage, 1, 1.0f);
 
 				Vec3 lookVec = getLookAngle();
@@ -78,7 +81,7 @@ public class AncientGolemEntity extends Monster {
 
 	public boolean doHurtTarget(@NotNull Entity pEntity) {
 		if (super.doHurtTarget(pEntity)) {
-			this.playSound(EmbersSounds.ANCIENT_GOLEM_PUNCH.get());
+			playSound(EmbersSounds.ANCIENT_GOLEM_PUNCH.get());
 			return true;
 		}
 		return false;
@@ -94,6 +97,6 @@ public class AncientGolemEntity extends Monster {
 
 	protected void playStepSound(@NotNull BlockPos pos, @NotNull BlockState state) {
 		super.playStepSound(pos, state);
-		this.playSound(EmbersSounds.ANCIENT_GOLEM_STEP.get());
+		playSound(EmbersSounds.ANCIENT_GOLEM_STEP.get());
 	}
 }

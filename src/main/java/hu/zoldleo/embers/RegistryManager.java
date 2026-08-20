@@ -1,5 +1,6 @@
 package hu.zoldleo.embers;
 
+import com.mojang.datafixers.types.Type;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import hu.zoldleo.embers.api.EmbersAPI;
@@ -18,10 +19,7 @@ import hu.zoldleo.embers.blockentity.*;
 import hu.zoldleo.embers.datacomponents.*;
 import hu.zoldleo.embers.datagen.EmbersFluidTags;
 import hu.zoldleo.embers.datagen.EmbersSounds;
-import hu.zoldleo.embers.entity.AncientGolemEntity;
-import hu.zoldleo.embers.entity.EmberPacketEntity;
-import hu.zoldleo.embers.entity.EmberProjectileEntity;
-import hu.zoldleo.embers.entity.GlimmerProjectileEntity;
+import hu.zoldleo.embers.entity.*;
 import hu.zoldleo.embers.fluidtypes.EmbersFluidType.FluidInfo;
 import hu.zoldleo.embers.fluidtypes.MoltenMetalFluidType;
 import hu.zoldleo.embers.fluidtypes.SteamFluidType;
@@ -33,7 +31,6 @@ import hu.zoldleo.embers.recipe.*;
 import hu.zoldleo.embers.recipe.base.*;
 import hu.zoldleo.embers.recipe.ingredient.AugmentIngredient;
 import hu.zoldleo.embers.recipe.ingredient.HeatIngredient;
-import hu.zoldleo.embers.research.ResearchData;
 import hu.zoldleo.embers.util.*;
 import hu.zoldleo.embers.worldgen.CaveStructure;
 import hu.zoldleo.embers.worldgen.CrystalSeedStructureProcessor;
@@ -57,8 +54,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
@@ -73,6 +72,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
@@ -86,6 +86,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.common.crafting.IngredientType;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -98,13 +99,11 @@ import net.neoforged.neoforge.registries.*;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class RegistryManager {
 	public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Embers.MODID);
@@ -374,6 +373,7 @@ public class RegistryManager {
 	public static final DeferredItem<AshenArmorGemItem> ASHEN_BOOTS = ITEMS.register("ashen_boots", () -> new AshenArmorGemItem(ASHEN_ARMOR_MATERIAL, ArmorItem.Type.BOOTS, new Item.Properties().durability(ArmorItem.Type.BOOTS.getDurability(19)), ConfigManager.ASHEN_BOOTS_SLOTS));
 	public static final DeferredItem<GlimmerCrystalItem> GLIMMER_CRYSTAL = ITEMS.register("glimmer_crystal", () -> new GlimmerCrystalItem(new Item.Properties().durability(800)));
 	public static final DeferredItem<GlimmerLampItem> GLIMMER_LAMP = ITEMS.register("glimmer_lamp", () -> new GlimmerLampItem(new Item.Properties().durability(1200)));
+    public static final DeferredItem<DawnstoneShieldItem> DAWNSTONE_SHIELD = ITEMS.register("dawnstone_shield", () -> new DawnstoneShieldItem(new Item.Properties().durability(336), ConfigManager.DAWNSTONE_SHIELD_SLOTS)); // TODO: tweak durability (default shield durability: 336)
 
 	public static final DeferredItem<CopperCellBlockItem> COPPER_CELL_ITEM = ITEMS.register("copper_cell", () -> new CopperCellBlockItem(COPPER_CELL.get(), new Item.Properties().stacksTo(1).component(RegistryManager.EMBER_COMPONENT, new EmberComponent(0, CopperCellBlockEntity.CAPACITY))));
 	public static final DeferredItem<BlockItem> CREATIVE_EMBER_ITEM = ITEMS.register("creative_ember_source", () -> new BlockItem(CREATIVE_EMBER.get(), new Item.Properties()));
@@ -691,76 +691,76 @@ public class RegistryManager {
 			.temperature(400));
 
 	//block entities
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CopperCellBlockEntity>> COPPER_CELL_ENTITY = BLOCK_ENTITY_TYPES.register("copper_cell", () -> BlockEntityType.Builder.of(CopperCellBlockEntity::new, COPPER_CELL.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CreativeEmberBlockEntity>> CREATIVE_EMBER_ENTITY = BLOCK_ENTITY_TYPES.register("creative_ember_source", () -> BlockEntityType.Builder.of(CreativeEmberBlockEntity::new, CREATIVE_EMBER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberDialBlockEntity>> EMBER_DIAL_ENTITY = BLOCK_ENTITY_TYPES.register("ember_dial", () -> BlockEntityType.Builder.of(EmberDialBlockEntity::new, EMBER_DIAL.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ItemDialBlockEntity>> ITEM_DIAL_ENTITY = BLOCK_ENTITY_TYPES.register("item_dial", () -> BlockEntityType.Builder.of(ItemDialBlockEntity::new, ITEM_DIAL.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidDialBlockEntity>> FLUID_DIAL_ENTITY = BLOCK_ENTITY_TYPES.register("fluid_dial", () -> BlockEntityType.Builder.of(FluidDialBlockEntity::new, FLUID_DIAL.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AtmosphericGaugeBlockEntity>> ATMOSPHERIC_GAUGE_ENTITY = BLOCK_ENTITY_TYPES.register("atmospheric_gauge", () -> BlockEntityType.Builder.of(AtmosphericGaugeBlockEntity::new, ATMOSPHERIC_GAUGE.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberEmitterBlockEntity>> EMBER_EMITTER_ENTITY = BLOCK_ENTITY_TYPES.register("ember_emitter", () -> BlockEntityType.Builder.of(EmberEmitterBlockEntity::new, EMBER_EMITTER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberReceiverBlockEntity>> EMBER_RECEIVER_ENTITY = BLOCK_ENTITY_TYPES.register("ember_receiver", () -> BlockEntityType.Builder.of(EmberReceiverBlockEntity::new, EMBER_RECEIVER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ItemPipeBlockEntity>> ITEM_PIPE_ENTITY = BLOCK_ENTITY_TYPES.register("item_pipe", () -> BlockEntityType.Builder.of(ItemPipeBlockEntity::new, ITEM_PIPE.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ItemExtractorBlockEntity>> ITEM_EXTRACTOR_ENTITY = BLOCK_ENTITY_TYPES.register("item_extractor", () -> BlockEntityType.Builder.of(ItemExtractorBlockEntity::new, ITEM_EXTRACTOR.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberBoreBlockEntity>> EMBER_BORE_ENTITY = BLOCK_ENTITY_TYPES.register("ember_bore", () -> BlockEntityType.Builder.of(EmberBoreBlockEntity::new, EMBER_BORE.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MechanicalCoreBlockEntity>> MECHANICAL_CORE_ENTITY = BLOCK_ENTITY_TYPES.register("mechanical_core", () -> BlockEntityType.Builder.of(MechanicalCoreBlockEntity::new, MECHANICAL_CORE.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberActivatorBottomBlockEntity>> EMBER_ACTIVATOR_BOTTOM_ENTITY = BLOCK_ENTITY_TYPES.register("ember_activator_bottom", () -> BlockEntityType.Builder.of(EmberActivatorBottomBlockEntity::new, EMBER_ACTIVATOR.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberActivatorTopBlockEntity>> EMBER_ACTIVATOR_TOP_ENTITY = BLOCK_ENTITY_TYPES.register("ember_activator_top", () -> BlockEntityType.Builder.of(EmberActivatorTopBlockEntity::new, EMBER_ACTIVATOR.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MelterBottomBlockEntity>> MELTER_BOTTOM_ENTITY = BLOCK_ENTITY_TYPES.register("melter_bottom", () -> BlockEntityType.Builder.of(MelterBottomBlockEntity::new, MELTER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MelterTopBlockEntity>> MELTER_TOP_ENTITY = BLOCK_ENTITY_TYPES.register("melter_top", () -> BlockEntityType.Builder.of(MelterTopBlockEntity::new, MELTER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidPipeBlockEntity>> FLUID_PIPE_ENTITY = BLOCK_ENTITY_TYPES.register("fluid_pipe", () -> BlockEntityType.Builder.of(FluidPipeBlockEntity::new, FLUID_PIPE.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidExtractorBlockEntity>> FLUID_EXTRACTOR_ENTITY = BLOCK_ENTITY_TYPES.register("fluid_extractor", () -> BlockEntityType.Builder.of(FluidExtractorBlockEntity::new, FLUID_EXTRACTOR.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidVesselBlockEntity>> FLUID_VESSEL_ENTITY = BLOCK_ENTITY_TYPES.register("fluid_vesel", () -> BlockEntityType.Builder.of(FluidVesselBlockEntity::new, FLUID_VESSEL.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<StamperBlockEntity>> STAMPER_ENTITY = BLOCK_ENTITY_TYPES.register("stamper", () -> BlockEntityType.Builder.of(StamperBlockEntity::new, STAMPER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<StampBaseBlockEntity>> STAMP_BASE_ENTITY = BLOCK_ENTITY_TYPES.register("stamp_base", () -> BlockEntityType.Builder.of(StampBaseBlockEntity::new, STAMP_BASE.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BinBlockEntity>> BIN_ENTITY = BLOCK_ENTITY_TYPES.register("bin", () -> BlockEntityType.Builder.of(BinBlockEntity::new, BIN.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MixerCentrifugeBottomBlockEntity>> MIXER_CENTRIFUGE_BOTTOM_ENTITY = BLOCK_ENTITY_TYPES.register("mixer_centrifuge_bottom", () -> BlockEntityType.Builder.of(MixerCentrifugeBottomBlockEntity::new, MIXER_CENTRIFUGE.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MixerCentrifugeTopBlockEntity>> MIXER_CENTRIFUGE_TOP_ENTITY = BLOCK_ENTITY_TYPES.register("mixer_centrifuge_top", () -> BlockEntityType.Builder.of(MixerCentrifugeTopBlockEntity::new, MIXER_CENTRIFUGE.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ItemDropperBlockEntity>> ITEM_DROPPER_ENTITY = BLOCK_ENTITY_TYPES.register("item_dropper", () -> BlockEntityType.Builder.of(ItemDropperBlockEntity::new, ITEM_DROPPER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PressureRefineryBottomBlockEntity>> PRESSURE_REFINERY_BOTTOM_ENTITY = BLOCK_ENTITY_TYPES.register("pressure_refinery_bottom", () -> BlockEntityType.Builder.of(PressureRefineryBottomBlockEntity::new, PRESSURE_REFINERY.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PressureRefineryTopBlockEntity>> PRESSURE_REFINERY_TOP_ENTITY = BLOCK_ENTITY_TYPES.register("pressure_refinery_top", () -> BlockEntityType.Builder.of(PressureRefineryTopBlockEntity::new, PRESSURE_REFINERY.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberEjectorBlockEntity>> EMBER_EJECTOR_ENTITY = BLOCK_ENTITY_TYPES.register("ember_ejector", () -> BlockEntityType.Builder.of(EmberEjectorBlockEntity::new, EMBER_EJECTOR.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberFunnelBlockEntity>> EMBER_FUNNEL_ENTITY = BLOCK_ENTITY_TYPES.register("ember_funnel", () -> BlockEntityType.Builder.of(EmberFunnelBlockEntity::new, EMBER_FUNNEL.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberRelayBlockEntity>> EMBER_RELAY_ENTITY = BLOCK_ENTITY_TYPES.register("ember_relay", () -> BlockEntityType.Builder.of(EmberRelayBlockEntity::new, EMBER_RELAY.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MirrorRelayBlockEntity>> MIRROR_RELAY_ENTITY = BLOCK_ENTITY_TYPES.register("mirror_relay", () -> BlockEntityType.Builder.of(MirrorRelayBlockEntity::new, MIRROR_RELAY.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BeamSplitterBlockEntity>> BEAM_SPLITTER_ENTITY = BLOCK_ENTITY_TYPES.register("beam_splitter", () -> BlockEntityType.Builder.of(BeamSplitterBlockEntity::new, BEAM_SPLITTER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ItemVacuumBlockEntity>> ITEM_VACUUM_ENTITY = BLOCK_ENTITY_TYPES.register("item_vacuum", () -> BlockEntityType.Builder.of(ItemVacuumBlockEntity::new, ITEM_VACUUM.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<HearthCoilBlockEntity>> HEARTH_COIL_ENTITY = BLOCK_ENTITY_TYPES.register("hearth_coil", () -> BlockEntityType.Builder.of(HearthCoilBlockEntity::new, HEARTH_COIL.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReservoirBlockEntity>> RESERVOIR_ENTITY = BLOCK_ENTITY_TYPES.register("reservoir", () -> BlockEntityType.Builder.of(ReservoirBlockEntity::new, RESERVOIR.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CaminiteValveBlockEntity>> CAMINITE_VALVE_ENTITY = BLOCK_ENTITY_TYPES.register("caminite_valve", () -> BlockEntityType.Builder.of(CaminiteValveBlockEntity::new, CAMINITE_VALVE_EDGE.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CrystalCellBlockEntity>> CRYSTAL_CELL_ENTITY = BLOCK_ENTITY_TYPES.register("crystal_cell", () -> BlockEntityType.Builder.of(CrystalCellBlockEntity::new, CRYSTAL_CELL.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ClockworkAttenuatorBlockEntity>> CLOCKWORK_ATTENUATOR_ENTITY = BLOCK_ENTITY_TYPES.register("clockwork_attenuator", () -> BlockEntityType.Builder.of(ClockworkAttenuatorBlockEntity::new, CLOCKWORK_ATTENUATOR.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GeologicSeparatorBlockEntity>> GEOLOGIC_SEPARATOR_ENTITY = BLOCK_ENTITY_TYPES.register("geologic_separator", () -> BlockEntityType.Builder.of(GeologicSeparatorBlockEntity::new, GEOLOGIC_SEPARATOR.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CopperChargerBlockEntity>> COPPER_CHARGER_ENTITY = BLOCK_ENTITY_TYPES.register("copper_charger", () -> BlockEntityType.Builder.of(CopperChargerBlockEntity::new, COPPER_CHARGER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberSiphonBlockEntity>> EMBER_SIPHON_ENTITY = BLOCK_ENTITY_TYPES.register("ember_siphon", () -> BlockEntityType.Builder.of(EmberSiphonBlockEntity::new, EMBER_SIPHON.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ItemTransferBlockEntity>> ITEM_TRANSFER_ENTITY = BLOCK_ENTITY_TYPES.register("item_transfer", () -> BlockEntityType.Builder.of(ItemTransferBlockEntity::new, ITEM_TRANSFER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidTransferBlockEntity>> FLUID_TRANSFER_ENTITY = BLOCK_ENTITY_TYPES.register("fluid_transfer", () -> BlockEntityType.Builder.of(FluidTransferBlockEntity::new, FLUID_TRANSFER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AlchemyPedestalBlockEntity>> ALCHEMY_PEDESTAL_ENTITY = BLOCK_ENTITY_TYPES.register("alchemy_pedestal", () -> BlockEntityType.Builder.of(AlchemyPedestalBlockEntity::new, ALCHEMY_PEDESTAL.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AlchemyPedestalTopBlockEntity>> ALCHEMY_PEDESTAL_TOP_ENTITY = BLOCK_ENTITY_TYPES.register("alchemy_pedestal_top", () -> BlockEntityType.Builder.of(AlchemyPedestalTopBlockEntity::new, ALCHEMY_PEDESTAL.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AlchemyTabletBlockEntity>> ALCHEMY_TABLET_ENTITY = BLOCK_ENTITY_TYPES.register("alchemy_tablet", () -> BlockEntityType.Builder.of(AlchemyTabletBlockEntity::new, ALCHEMY_TABLET.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BeamCannonBlockEntity>> BEAM_CANNON_ENTITY = BLOCK_ENTITY_TYPES.register("beam_cannon", () -> BlockEntityType.Builder.of(BeamCannonBlockEntity::new, BEAM_CANNON.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MechanicalPumpBottomBlockEntity>> MECHANICAL_PUMP_BOTTOM_ENTITY = BLOCK_ENTITY_TYPES.register("mechanical_pump_bottom", () -> BlockEntityType.Builder.of(MechanicalPumpBottomBlockEntity::new, MECHANICAL_PUMP.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MechanicalPumpTopBlockEntity>> MECHANICAL_PUMP_TOP_ENTITY = BLOCK_ENTITY_TYPES.register("mechanical_pump_top", () -> BlockEntityType.Builder.of(MechanicalPumpTopBlockEntity::new, MECHANICAL_PUMP.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MiniBoilerBlockEntity>> MINI_BOILER_ENTITY = BLOCK_ENTITY_TYPES.register("mini_boiler", () -> BlockEntityType.Builder.of(MiniBoilerBlockEntity::new, MINI_BOILER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CatalyticPlugBlockEntity>> CATALYTIC_PLUG_ENTITY = BLOCK_ENTITY_TYPES.register("catalytic_plug", () -> BlockEntityType.Builder.of(CatalyticPlugBlockEntity::new, CATALYTIC_PLUG.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WildfireStirlingBlockEntity>> WILDFIRE_STIRLING_ENTITY = BLOCK_ENTITY_TYPES.register("wildfire_stirling", () -> BlockEntityType.Builder.of(WildfireStirlingBlockEntity::new, WILDFIRE_STIRLING.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberInjectorBlockEntity>> EMBER_INJECTOR_ENTITY = BLOCK_ENTITY_TYPES.register("ember_injector", () -> BlockEntityType.Builder.of(EmberInjectorBlockEntity::new, EMBER_INJECTOR.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FieldChartBlockEntity>> FIELD_CHART_ENTITY = BLOCK_ENTITY_TYPES.register("field_chart", () -> BlockEntityType.Builder.of(FieldChartBlockEntity::new, FIELD_CHART.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<IgnemReactorBlockEntity>> IGNEM_REACTOR_ENTITY = BLOCK_ENTITY_TYPES.register("ignem_reactor", () -> BlockEntityType.Builder.of(IgnemReactorBlockEntity::new, IGNEM_REACTOR.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CatalysisChamberBlockEntity>> CATALYSIS_CHAMBER_ENTITY = BLOCK_ENTITY_TYPES.register("catalysis_chamber", () -> BlockEntityType.Builder.of(CatalysisChamberBlockEntity::new, CATALYSIS_CHAMBER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CombustionChamberBlockEntity>> COMBUSTION_CHAMBER_ENTITY = BLOCK_ENTITY_TYPES.register("combustion_chamber", () -> BlockEntityType.Builder.of(CombustionChamberBlockEntity::new, COMBUSTION_CHAMBER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CinderPlinthBlockEntity>> CINDER_PLINTH_ENTITY = BLOCK_ENTITY_TYPES.register("cinder_plinth", () -> BlockEntityType.Builder.of(CinderPlinthBlockEntity::new, CINDER_PLINTH.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DawnstoneAnvilBlockEntity>> DAWNSTONE_ANVIL_ENTITY = BLOCK_ENTITY_TYPES.register("dawnstone_anvil", () -> BlockEntityType.Builder.of(DawnstoneAnvilBlockEntity::new, DAWNSTONE_ANVIL.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AutomaticHammerBlockEntity>> AUTOMATIC_HAMMER_ENTITY = BLOCK_ENTITY_TYPES.register("automatic_hammer", () -> BlockEntityType.Builder.of(AutomaticHammerBlockEntity::new, AUTOMATIC_HAMMER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<InfernoForgeBottomBlockEntity>> INFERNO_FORGE_BOTTOM_ENTITY = BLOCK_ENTITY_TYPES.register("inferno_forge_bottom", () -> BlockEntityType.Builder.of(InfernoForgeBottomBlockEntity::new, INFERNO_FORGE.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<InfernoForgeTopBlockEntity>> INFERNO_FORGE_TOP_ENTITY = BLOCK_ENTITY_TYPES.register("inferno_forge_top", () -> BlockEntityType.Builder.of(InfernoForgeTopBlockEntity::new, INFERNO_FORGE.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MnemonicInscriberBlockEntity>> MNEMONIC_INSCRIBER_ENTITY = BLOCK_ENTITY_TYPES.register("mnemonic_inscriber", () -> BlockEntityType.Builder.of(MnemonicInscriberBlockEntity::new, MNEMONIC_INSCRIBER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CharInstillerBlockEntity>> CHAR_INSTILLER_ENTITY = BLOCK_ENTITY_TYPES.register("char_instiller", () -> BlockEntityType.Builder.of(CharInstillerBlockEntity::new, CHAR_INSTILLER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AtmosphericBellowsBlockEntity>> ATMOSPHERIC_BELLOWS_ENTITY = BLOCK_ENTITY_TYPES.register("atmospheric_bellows", () -> BlockEntityType.Builder.of(AtmosphericBellowsBlockEntity::new, ATMOSPHERIC_BELLOWS.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EntropicEnumeratorBlockEntity>> ENTROPIC_ENUMERATOR_ENTITY = BLOCK_ENTITY_TYPES.register("entropic_enumerator", () -> BlockEntityType.Builder.of(EntropicEnumeratorBlockEntity::new, ENTROPIC_ENUMERATOR.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MithrilBlockEntity>> MITHRIL_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register("mithril_block", () -> BlockEntityType.Builder.of(MithrilBlockEntity::new, MITHRIL_BLOCK.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<HeatExchangerBlockEntity>> HEAT_EXCHANGER_ENTITY = BLOCK_ENTITY_TYPES.register("heat_exchanger", () -> BlockEntityType.Builder.of(HeatExchangerBlockEntity::new, HEAT_EXCHANGER.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<HeatInsulationBlockEntity>> HEAT_INSULATION_ENTITY = BLOCK_ENTITY_TYPES.register("heat_insulation", () -> BlockEntityType.Builder.of(HeatInsulationBlockEntity::new, HEAT_INSULATION.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExcavationBucketsBlockEntity>> EXCAVATION_BUCKETS_ENTITY = BLOCK_ENTITY_TYPES.register("excavation_buckets", () -> BlockEntityType.Builder.of(ExcavationBucketsBlockEntity::new, EXCAVATION_BUCKETS.get()).build(null));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CopperCellBlockEntity>> COPPER_CELL_ENTITY = registerBlockEntity("copper_cell", () -> BlockEntityType.Builder.of(CopperCellBlockEntity::new, COPPER_CELL.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CreativeEmberBlockEntity>> CREATIVE_EMBER_ENTITY = registerBlockEntity("creative_ember_source", () -> BlockEntityType.Builder.of(CreativeEmberBlockEntity::new, CREATIVE_EMBER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberDialBlockEntity>> EMBER_DIAL_ENTITY = registerBlockEntity("ember_dial", () -> BlockEntityType.Builder.of(EmberDialBlockEntity::new, EMBER_DIAL.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ItemDialBlockEntity>> ITEM_DIAL_ENTITY = registerBlockEntity("item_dial", () -> BlockEntityType.Builder.of(ItemDialBlockEntity::new, ITEM_DIAL.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidDialBlockEntity>> FLUID_DIAL_ENTITY = registerBlockEntity("fluid_dial", () -> BlockEntityType.Builder.of(FluidDialBlockEntity::new, FLUID_DIAL.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AtmosphericGaugeBlockEntity>> ATMOSPHERIC_GAUGE_ENTITY = registerBlockEntity("atmospheric_gauge", () -> BlockEntityType.Builder.of(AtmosphericGaugeBlockEntity::new, ATMOSPHERIC_GAUGE.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberEmitterBlockEntity>> EMBER_EMITTER_ENTITY = registerBlockEntity("ember_emitter", () -> BlockEntityType.Builder.of(EmberEmitterBlockEntity::new, EMBER_EMITTER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberReceiverBlockEntity>> EMBER_RECEIVER_ENTITY = registerBlockEntity("ember_receiver", () -> BlockEntityType.Builder.of(EmberReceiverBlockEntity::new, EMBER_RECEIVER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ItemPipeBlockEntity>> ITEM_PIPE_ENTITY = registerBlockEntity("item_pipe", () -> BlockEntityType.Builder.of(ItemPipeBlockEntity::new, ITEM_PIPE.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ItemExtractorBlockEntity>> ITEM_EXTRACTOR_ENTITY = registerBlockEntity("item_extractor", () -> BlockEntityType.Builder.of(ItemExtractorBlockEntity::new, ITEM_EXTRACTOR.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberBoreBlockEntity>> EMBER_BORE_ENTITY = registerBlockEntity("ember_bore", () -> BlockEntityType.Builder.of(EmberBoreBlockEntity::new, EMBER_BORE.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MechanicalCoreBlockEntity>> MECHANICAL_CORE_ENTITY = registerBlockEntity("mechanical_core", () -> BlockEntityType.Builder.of(MechanicalCoreBlockEntity::new, MECHANICAL_CORE.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberActivatorBottomBlockEntity>> EMBER_ACTIVATOR_BOTTOM_ENTITY = registerBlockEntity("ember_activator_bottom", () -> BlockEntityType.Builder.of(EmberActivatorBottomBlockEntity::new, EMBER_ACTIVATOR.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberActivatorTopBlockEntity>> EMBER_ACTIVATOR_TOP_ENTITY = registerBlockEntity("ember_activator_top", () -> BlockEntityType.Builder.of(EmberActivatorTopBlockEntity::new, EMBER_ACTIVATOR.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MelterBottomBlockEntity>> MELTER_BOTTOM_ENTITY = registerBlockEntity("melter_bottom", () -> BlockEntityType.Builder.of(MelterBottomBlockEntity::new, MELTER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MelterTopBlockEntity>> MELTER_TOP_ENTITY = registerBlockEntity("melter_top", () -> BlockEntityType.Builder.of(MelterTopBlockEntity::new, MELTER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidPipeBlockEntity>> FLUID_PIPE_ENTITY = registerBlockEntity("fluid_pipe", () -> BlockEntityType.Builder.of(FluidPipeBlockEntity::new, FLUID_PIPE.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidExtractorBlockEntity>> FLUID_EXTRACTOR_ENTITY = registerBlockEntity("fluid_extractor", () -> BlockEntityType.Builder.of(FluidExtractorBlockEntity::new, FLUID_EXTRACTOR.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidVesselBlockEntity>> FLUID_VESSEL_ENTITY = registerBlockEntity("fluid_vesel", () -> BlockEntityType.Builder.of(FluidVesselBlockEntity::new, FLUID_VESSEL.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<StamperBlockEntity>> STAMPER_ENTITY = registerBlockEntity("stamper", () -> BlockEntityType.Builder.of(StamperBlockEntity::new, STAMPER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<StampBaseBlockEntity>> STAMP_BASE_ENTITY = registerBlockEntity("stamp_base", () -> BlockEntityType.Builder.of(StampBaseBlockEntity::new, STAMP_BASE.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BinBlockEntity>> BIN_ENTITY = registerBlockEntity("bin", () -> BlockEntityType.Builder.of(BinBlockEntity::new, BIN.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MixerCentrifugeBottomBlockEntity>> MIXER_CENTRIFUGE_BOTTOM_ENTITY = registerBlockEntity("mixer_centrifuge_bottom", () -> BlockEntityType.Builder.of(MixerCentrifugeBottomBlockEntity::new, MIXER_CENTRIFUGE.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MixerCentrifugeTopBlockEntity>> MIXER_CENTRIFUGE_TOP_ENTITY = registerBlockEntity("mixer_centrifuge_top", () -> BlockEntityType.Builder.of(MixerCentrifugeTopBlockEntity::new, MIXER_CENTRIFUGE.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ItemDropperBlockEntity>> ITEM_DROPPER_ENTITY = registerBlockEntity("item_dropper", () -> BlockEntityType.Builder.of(ItemDropperBlockEntity::new, ITEM_DROPPER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PressureRefineryBottomBlockEntity>> PRESSURE_REFINERY_BOTTOM_ENTITY = registerBlockEntity("pressure_refinery_bottom", () -> BlockEntityType.Builder.of(PressureRefineryBottomBlockEntity::new, PRESSURE_REFINERY.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PressureRefineryTopBlockEntity>> PRESSURE_REFINERY_TOP_ENTITY = registerBlockEntity("pressure_refinery_top", () -> BlockEntityType.Builder.of(PressureRefineryTopBlockEntity::new, PRESSURE_REFINERY.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberEjectorBlockEntity>> EMBER_EJECTOR_ENTITY = registerBlockEntity("ember_ejector", () -> BlockEntityType.Builder.of(EmberEjectorBlockEntity::new, EMBER_EJECTOR.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberFunnelBlockEntity>> EMBER_FUNNEL_ENTITY = registerBlockEntity("ember_funnel", () -> BlockEntityType.Builder.of(EmberFunnelBlockEntity::new, EMBER_FUNNEL.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberRelayBlockEntity>> EMBER_RELAY_ENTITY = registerBlockEntity("ember_relay", () -> BlockEntityType.Builder.of(EmberRelayBlockEntity::new, EMBER_RELAY.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MirrorRelayBlockEntity>> MIRROR_RELAY_ENTITY = registerBlockEntity("mirror_relay", () -> BlockEntityType.Builder.of(MirrorRelayBlockEntity::new, MIRROR_RELAY.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BeamSplitterBlockEntity>> BEAM_SPLITTER_ENTITY = registerBlockEntity("beam_splitter", () -> BlockEntityType.Builder.of(BeamSplitterBlockEntity::new, BEAM_SPLITTER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ItemVacuumBlockEntity>> ITEM_VACUUM_ENTITY = registerBlockEntity("item_vacuum", () -> BlockEntityType.Builder.of(ItemVacuumBlockEntity::new, ITEM_VACUUM.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<HearthCoilBlockEntity>> HEARTH_COIL_ENTITY = registerBlockEntity("hearth_coil", () -> BlockEntityType.Builder.of(HearthCoilBlockEntity::new, HEARTH_COIL.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReservoirBlockEntity>> RESERVOIR_ENTITY = registerBlockEntity("reservoir", () -> BlockEntityType.Builder.of(ReservoirBlockEntity::new, RESERVOIR.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CaminiteValveBlockEntity>> CAMINITE_VALVE_ENTITY = registerBlockEntity("caminite_valve", () -> BlockEntityType.Builder.of(CaminiteValveBlockEntity::new, CAMINITE_VALVE_EDGE.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CrystalCellBlockEntity>> CRYSTAL_CELL_ENTITY = registerBlockEntity("crystal_cell", () -> BlockEntityType.Builder.of(CrystalCellBlockEntity::new, CRYSTAL_CELL.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ClockworkAttenuatorBlockEntity>> CLOCKWORK_ATTENUATOR_ENTITY = registerBlockEntity("clockwork_attenuator", () -> BlockEntityType.Builder.of(ClockworkAttenuatorBlockEntity::new, CLOCKWORK_ATTENUATOR.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GeologicSeparatorBlockEntity>> GEOLOGIC_SEPARATOR_ENTITY = registerBlockEntity("geologic_separator", () -> BlockEntityType.Builder.of(GeologicSeparatorBlockEntity::new, GEOLOGIC_SEPARATOR.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CopperChargerBlockEntity>> COPPER_CHARGER_ENTITY = registerBlockEntity("copper_charger", () -> BlockEntityType.Builder.of(CopperChargerBlockEntity::new, COPPER_CHARGER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberSiphonBlockEntity>> EMBER_SIPHON_ENTITY = registerBlockEntity("ember_siphon", () -> BlockEntityType.Builder.of(EmberSiphonBlockEntity::new, EMBER_SIPHON.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ItemTransferBlockEntity>> ITEM_TRANSFER_ENTITY = registerBlockEntity("item_transfer", () -> BlockEntityType.Builder.of(ItemTransferBlockEntity::new, ITEM_TRANSFER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FluidTransferBlockEntity>> FLUID_TRANSFER_ENTITY = registerBlockEntity("fluid_transfer", () -> BlockEntityType.Builder.of(FluidTransferBlockEntity::new, FLUID_TRANSFER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AlchemyPedestalBlockEntity>> ALCHEMY_PEDESTAL_ENTITY = registerBlockEntity("alchemy_pedestal", () -> BlockEntityType.Builder.of(AlchemyPedestalBlockEntity::new, ALCHEMY_PEDESTAL.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AlchemyPedestalTopBlockEntity>> ALCHEMY_PEDESTAL_TOP_ENTITY = registerBlockEntity("alchemy_pedestal_top", () -> BlockEntityType.Builder.of(AlchemyPedestalTopBlockEntity::new, ALCHEMY_PEDESTAL.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AlchemyTabletBlockEntity>> ALCHEMY_TABLET_ENTITY = registerBlockEntity("alchemy_tablet", () -> BlockEntityType.Builder.of(AlchemyTabletBlockEntity::new, ALCHEMY_TABLET.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BeamCannonBlockEntity>> BEAM_CANNON_ENTITY = registerBlockEntity("beam_cannon", () -> BlockEntityType.Builder.of(BeamCannonBlockEntity::new, BEAM_CANNON.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MechanicalPumpBottomBlockEntity>> MECHANICAL_PUMP_BOTTOM_ENTITY = registerBlockEntity("mechanical_pump_bottom", () -> BlockEntityType.Builder.of(MechanicalPumpBottomBlockEntity::new, MECHANICAL_PUMP.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MechanicalPumpTopBlockEntity>> MECHANICAL_PUMP_TOP_ENTITY = registerBlockEntity("mechanical_pump_top", () -> BlockEntityType.Builder.of(MechanicalPumpTopBlockEntity::new, MECHANICAL_PUMP.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MiniBoilerBlockEntity>> MINI_BOILER_ENTITY = registerBlockEntity("mini_boiler", () -> BlockEntityType.Builder.of(MiniBoilerBlockEntity::new, MINI_BOILER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CatalyticPlugBlockEntity>> CATALYTIC_PLUG_ENTITY = registerBlockEntity("catalytic_plug", () -> BlockEntityType.Builder.of(CatalyticPlugBlockEntity::new, CATALYTIC_PLUG.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WildfireStirlingBlockEntity>> WILDFIRE_STIRLING_ENTITY = registerBlockEntity("wildfire_stirling", () -> BlockEntityType.Builder.of(WildfireStirlingBlockEntity::new, WILDFIRE_STIRLING.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EmberInjectorBlockEntity>> EMBER_INJECTOR_ENTITY = registerBlockEntity("ember_injector", () -> BlockEntityType.Builder.of(EmberInjectorBlockEntity::new, EMBER_INJECTOR.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FieldChartBlockEntity>> FIELD_CHART_ENTITY = registerBlockEntity("field_chart", () -> BlockEntityType.Builder.of(FieldChartBlockEntity::new, FIELD_CHART.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<IgnemReactorBlockEntity>> IGNEM_REACTOR_ENTITY = registerBlockEntity("ignem_reactor", () -> BlockEntityType.Builder.of(IgnemReactorBlockEntity::new, IGNEM_REACTOR.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CatalysisChamberBlockEntity>> CATALYSIS_CHAMBER_ENTITY = registerBlockEntity("catalysis_chamber", () -> BlockEntityType.Builder.of(CatalysisChamberBlockEntity::new, CATALYSIS_CHAMBER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CombustionChamberBlockEntity>> COMBUSTION_CHAMBER_ENTITY = registerBlockEntity("combustion_chamber", () -> BlockEntityType.Builder.of(CombustionChamberBlockEntity::new, COMBUSTION_CHAMBER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CinderPlinthBlockEntity>> CINDER_PLINTH_ENTITY = registerBlockEntity("cinder_plinth", () -> BlockEntityType.Builder.of(CinderPlinthBlockEntity::new, CINDER_PLINTH.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DawnstoneAnvilBlockEntity>> DAWNSTONE_ANVIL_ENTITY = registerBlockEntity("dawnstone_anvil", () -> BlockEntityType.Builder.of(DawnstoneAnvilBlockEntity::new, DAWNSTONE_ANVIL.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AutomaticHammerBlockEntity>> AUTOMATIC_HAMMER_ENTITY = registerBlockEntity("automatic_hammer", () -> BlockEntityType.Builder.of(AutomaticHammerBlockEntity::new, AUTOMATIC_HAMMER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<InfernoForgeBottomBlockEntity>> INFERNO_FORGE_BOTTOM_ENTITY = registerBlockEntity("inferno_forge_bottom", () -> BlockEntityType.Builder.of(InfernoForgeBottomBlockEntity::new, INFERNO_FORGE.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<InfernoForgeTopBlockEntity>> INFERNO_FORGE_TOP_ENTITY = registerBlockEntity("inferno_forge_top", () -> BlockEntityType.Builder.of(InfernoForgeTopBlockEntity::new, INFERNO_FORGE.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MnemonicInscriberBlockEntity>> MNEMONIC_INSCRIBER_ENTITY = registerBlockEntity("mnemonic_inscriber", () -> BlockEntityType.Builder.of(MnemonicInscriberBlockEntity::new, MNEMONIC_INSCRIBER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CharInstillerBlockEntity>> CHAR_INSTILLER_ENTITY = registerBlockEntity("char_instiller", () -> BlockEntityType.Builder.of(CharInstillerBlockEntity::new, CHAR_INSTILLER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AtmosphericBellowsBlockEntity>> ATMOSPHERIC_BELLOWS_ENTITY = registerBlockEntity("atmospheric_bellows", () -> BlockEntityType.Builder.of(AtmosphericBellowsBlockEntity::new, ATMOSPHERIC_BELLOWS.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EntropicEnumeratorBlockEntity>> ENTROPIC_ENUMERATOR_ENTITY = registerBlockEntity("entropic_enumerator", () -> BlockEntityType.Builder.of(EntropicEnumeratorBlockEntity::new, ENTROPIC_ENUMERATOR.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MithrilBlockEntity>> MITHRIL_BLOCK_ENTITY = registerBlockEntity("mithril_block", () -> BlockEntityType.Builder.of(MithrilBlockEntity::new, MITHRIL_BLOCK.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<HeatExchangerBlockEntity>> HEAT_EXCHANGER_ENTITY = registerBlockEntity("heat_exchanger", () -> BlockEntityType.Builder.of(HeatExchangerBlockEntity::new, HEAT_EXCHANGER.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<HeatInsulationBlockEntity>> HEAT_INSULATION_ENTITY = registerBlockEntity("heat_insulation", () -> BlockEntityType.Builder.of(HeatInsulationBlockEntity::new, HEAT_INSULATION.get()));
+	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExcavationBucketsBlockEntity>> EXCAVATION_BUCKETS_ENTITY = registerBlockEntity("excavation_buckets", () -> BlockEntityType.Builder.of(ExcavationBucketsBlockEntity::new, EXCAVATION_BUCKETS.get()));
 
 	//creative tabs
 	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EMBERS_TAB = CREATIVE_TABS.register("main_tab", () -> CreativeModeTab.builder()
@@ -781,16 +781,18 @@ public class RegistryManager {
 			.build());
 
 	//entities
-	public static final DeferredHolder<EntityType<?>, EntityType<EmberPacketEntity>> EMBER_PACKET = registerEntity("ember_packet", EntityType.Builder.<EmberPacketEntity>of(EmberPacketEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).fireImmune().clientTrackingRange(3).updateInterval(1));
-	public static final DeferredHolder<EntityType<?>, EntityType<EmberProjectileEntity>> EMBER_PROJECTILE = registerEntity("ember_projectile", EntityType.Builder.<EmberProjectileEntity>of(EmberProjectileEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).fireImmune().clientTrackingRange(3).updateInterval(1));
-	public static final DeferredHolder<EntityType<?>, EntityType<GlimmerProjectileEntity>> GLIMMER_PROJECTILE = registerEntity("glimmer_projectile", EntityType.Builder.<GlimmerProjectileEntity>of(GlimmerProjectileEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).fireImmune().clientTrackingRange(3).updateInterval(1));
-	public static final DeferredHolder<EntityType<?>, EntityType<AncientGolemEntity>> ANCIENT_GOLEM = registerEntity("ancient_golem", EntityType.Builder.<AncientGolemEntity>of(AncientGolemEntity::new, MobCategory.MONSTER).sized(0.6F, 1.8F).fireImmune().clientTrackingRange(8));
+	public static final DeferredHolder<EntityType<?>, EntityType<EmberPacketEntity>> EMBER_PACKET = registerEntity("ember_packet", EntityType.Builder.of(EmberPacketEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).fireImmune().clientTrackingRange(3).updateInterval(1));
+	public static final DeferredHolder<EntityType<?>, EntityType<EmberProjectileEntity>> EMBER_PROJECTILE = registerEntity("ember_projectile", EntityType.Builder.of(EmberProjectileEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).fireImmune().clientTrackingRange(3).updateInterval(1));
+	public static final DeferredHolder<EntityType<?>, EntityType<GlimmerProjectileEntity>> GLIMMER_PROJECTILE = registerEntity("glimmer_projectile", EntityType.Builder.of(GlimmerProjectileEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).fireImmune().clientTrackingRange(3).updateInterval(1));
+	public static final DeferredHolder<EntityType<?>, EntityType<AncientGolemEntity>> ANCIENT_GOLEM = registerEntity("ancient_golem", EntityType.Builder.of(AncientGolemEntity::new, MobCategory.MONSTER).sized(0.6F, 1.8F).fireImmune().clientTrackingRange(8));
+	public static final DeferredHolder<EntityType<?>, EntityType<EmberWispEntity>> EMBER_WISP = registerEntity("ember_wisp", EntityType.Builder.of(EmberWispEntity::new, MobCategory.MONSTER).sized(0.5F, 0.5F).fireImmune().clientTrackingRange(8));
 
 	//spawn eggs
     /**
     * Not sure why it's deprecated, same usage as in {@link net.minecraft.world.item.Items}
     */
-	public static final DeferredItem<SpawnEggItem> ANCIENT_GOLEM_SPAWN_EGG = ITEMS.register("ancient_golem_spawn_egg", () -> new SpawnEggItem(ANCIENT_GOLEM.get(), Misc.intColor(48, 38, 35), Misc.intColor(79, 66, 61), new Item.Properties()));
+	public static final DeferredItem<SpawnEggItem> ANCIENT_GOLEM_SPAWN_EGG = ITEMS.register("ancient_golem_spawn_egg", () -> new DeferredSpawnEggItem(ANCIENT_GOLEM, Misc.intColor(48, 38, 35), Misc.intColor(79, 66, 61), new Item.Properties()));
+	public static final DeferredItem<SpawnEggItem> EMBER_WISP_SPAWN_EGG = ITEMS.register("ember_wisp_spawn_egg", () -> new DeferredSpawnEggItem(EMBER_WISP, Misc.intColor(48, 38, 35), Misc.intColor(79, 66, 61), new Item.Properties())); // TODO: something ember-like color
 
 	//augments
     private static Holder<IAugment> registerAugment(String name, IAugment augment) {
@@ -874,8 +876,8 @@ public class RegistryManager {
 	public static final DeferredHolder<StructureProcessorType<?>, StructureProcessorType<EntityMobilizerStructureProcessor>> ENTITY_MOBILIZER_PROCESSOR = STRUCTURE_PROCESSOR_TYPES.register("entity_mobilizer", () -> () -> EntityMobilizerStructureProcessor.CODEC);
 
     //attachment types
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<ResearchData>> RESEARCH_DATA = ATTACHMENT_TYPES.register("research_data", () -> AttachmentType.serializable(() -> new ResearchData()).copyOnDeath().build());
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<ShiftingScalesAugment.ScalesData>> SCALES_DATA = ATTACHMENT_TYPES.register("scales_data", () -> AttachmentType.serializable(() -> new ShiftingScalesAugment.ScalesData()).copyOnDeath().build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Map<ResourceLocation, Boolean>>> RESEARCH_DATA = ATTACHMENT_TYPES.register("research_data", () -> AttachmentType.<Map<ResourceLocation, Boolean>>builder(() -> new HashMap<>()).serialize(Codec.unboundedMap(ResourceLocation.CODEC, Codec.BOOL).xmap(HashMap::new, Function.identity())).sync(ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, ByteBufCodecs.BOOL)).copyOnDeath().build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Double>> SCALES_DATA = ATTACHMENT_TYPES.register("scales_data", () -> AttachmentType.builder(() -> 0.).serialize(Codec.DOUBLE).sync(ByteBufCodecs.DOUBLE).copyOnDeath().build());
 
     //ingredient types
     public static final DeferredHolder<IngredientType<?>, IngredientType<HeatIngredient>> HEAT_INGREDIENT_TYPE = INGREDIENT_TYPES.register("heat_ingredient", () -> new IngredientType<>(HeatIngredient.CODEC, HeatIngredient.STREAM_CODEC));
@@ -895,7 +897,7 @@ public class RegistryManager {
 					DispensibleContainerItem container = (DispensibleContainerItem)stack.getItem();
 					BlockPos blockpos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
 					Level level = source.level();
-					if (container.emptyContents(null, level, blockpos, null)) {
+					if (container.emptyContents(null, level, blockpos, null, stack)) {
 						container.checkExtraContent(null, level, stack, blockpos);
 						return new ItemStack(Items.BUCKET);
 					}
@@ -937,6 +939,12 @@ public class RegistryManager {
 				(level, currentPos, relativePos, currentState) -> level.getFluidState(relativePos).is(EmbersFluidTags.WATERY),
 				SOLIDIFIED_METAL.get().defaultBlockState()));
 	}
+
+    private static <T extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> registerBlockEntity(String key, Supplier<BlockEntityType.Builder<T>> builder) {
+        Type<?> type = Util.fetchChoiceType(References.BLOCK_ENTITY, key);
+        //noinspection DataFlowIssue
+        return BLOCK_ENTITY_TYPES.register(key, () -> builder.get().build(type));
+    }
 
 	public static class FluidStuff {
 
@@ -1052,7 +1060,7 @@ public class RegistryManager {
 			this.name = type;
 
 			BLOCK = BLOCKS.register(type + "_crystal_seed", () -> new CrystalSeedBlock(Properties.of().mapColor(MapColor.NONE).sound(SoundType.AMETHYST).requiresCorrectToolForDrops().strength(1.6f).noOcclusion().forceSolidOn(), type));
-			BLOCKENTITY = BLOCK_ENTITY_TYPES.register(type + "_crystal_seed", () -> BlockEntityType.Builder.of((pos, state) -> new CrystalSeedBlockEntity(pos, state, type), BLOCK.get()).build(null));
+			BLOCKENTITY = registerBlockEntity(type + "_crystal_seed", () -> BlockEntityType.Builder.of((pos, state) -> new CrystalSeedBlockEntity(pos, state, type), BLOCK.get()));
 			seeds.put(type, this);
 		}
 

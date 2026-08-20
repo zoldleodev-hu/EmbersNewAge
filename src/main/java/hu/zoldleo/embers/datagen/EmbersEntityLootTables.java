@@ -42,5 +42,6 @@ public class EmbersEntityLootTables extends EntityLootSubProvider {
 								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(registries, UniformGenerator.between(0.0F, 1.0F)))))
 				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
 						.add(LootItem.lootTableItem(RegistryManager.ANCIENT_MOTIVE_CORE.get()))));
+        add(RegistryManager.EMBER_WISP.get(), LootTable.lootTable());
 	}
 }

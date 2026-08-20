@@ -116,8 +116,24 @@ public class CuriosCompat {
                         return amount;
                 }
             }
-		return amount;
+		return amount; // TODO: currently returns remaining ember, should return removed ember and all usages should be changed accordingly
 	}
+
+    public static double addEmber(LivingEntity living, double amount) {
+        Optional<ICuriosItemHandler> inv = CuriosApi.getCuriosInventory(living);
+        if (inv.isEmpty())
+            return amount;
+        for (ICurioStacksHandler curio : inv.get().getCurios().values())
+            for (int i = 0; i < curio.getStacks().getSlots(); i++) {
+                IEmberCapability capability = curio.getStacks().getStackInSlot(i).getCapability(EmbersCapabilities.EMBER_CAPABILITY_ITEM, null);
+                if (capability != null) {
+                    amount -= capability.addAmount(amount, true);
+                    if (amount <= 0)
+                        return amount;
+                }
+            }
+        return amount;
+    }
 
 	public static void initCuriosCategory() {
 		ItemStack fullBulb = EmberStorageItem.withFill(EMBER_BULB.get(), EMBER_BULB.get().getCapacity());

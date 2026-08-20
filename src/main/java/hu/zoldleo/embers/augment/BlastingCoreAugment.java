@@ -27,7 +27,7 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.EventHooks;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 
 @EventBusSubscriber
@@ -106,7 +106,7 @@ public class BlastingCoreAugment extends AugmentBase {
 
 	@SuppressWarnings("unchecked")
 	@SubscribeEvent
-	public static void onHit(LivingIncomingDamageEvent event) {
+	public static void onHit(LivingDamageEvent.Post event) {
 		if (!blastedEntities.contains(event.getEntity()) && event.getSource().getEntity() != event.getEntity() && event.getSource().getDirectEntity() != event.getEntity()) {
 			try {
                 BlastingCoreAugment augment = (BlastingCoreAugment)RegistryManager.BLASTING_CORE_AUGMENT.value();
@@ -129,7 +129,7 @@ public class BlastingCoreAugment extends AugmentBase {
 							double z = event.getEntity().getZ();
 							blastedEntities.addAll(entities);
 
-							BlastingExplosion explosion = new BlastingExplosion((List<Entity>) entities, event.getAmount() * strength, damager.level(), damager, x, y, z, strength * 5f, false, BlockInteraction.KEEP);
+							BlastingExplosion explosion = new BlastingExplosion((List<Entity>) entities, event.getNewDamage() * strength, damager.level(), damager, x, y, z, strength * 5f, false, BlockInteraction.KEEP);
 							spawnExplosion(damager.level(), explosion, x, y, z, strength * 1.5f);
 						}
 					}
@@ -148,7 +148,7 @@ public class BlastingCoreAugment extends AugmentBase {
 						double z = event.getEntity().getZ();
 						blastedEntities.addAll(entities);
 
-						BlastingExplosion explosion = new BlastingExplosion((List<Entity>) entities, event.getAmount() * strength * 0.25f, damager.level(), damager, x, y, z, strength * 5f, false, BlockInteraction.KEEP);
+						BlastingExplosion explosion = new BlastingExplosion((List<Entity>) entities, event.getNewDamage() * strength * 0.25f, damager.level(), damager, x, y, z, strength * 5f, false, BlockInteraction.KEEP);
 						spawnExplosion(damager.level(), explosion, x, y, z, strength * 1.5f);
 					}
 				}

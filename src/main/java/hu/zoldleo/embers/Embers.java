@@ -14,17 +14,17 @@ import hu.zoldleo.embers.blockentity.render.*;
 import hu.zoldleo.embers.compat.curios.CuriosCompat;
 import hu.zoldleo.embers.datagen.*;
 import hu.zoldleo.embers.entity.AncientGolemEntity;
-import hu.zoldleo.embers.entity.render.AncientGolemRenderer;
-import hu.zoldleo.embers.entity.render.EmberPacketRenderer;
-import hu.zoldleo.embers.entity.render.EmberProjectileRenderer;
-import hu.zoldleo.embers.entity.render.GlimmerProjectileRenderer;
+import hu.zoldleo.embers.entity.EmberWispEntity;
+import hu.zoldleo.embers.entity.render.*;
 import hu.zoldleo.embers.fluidtypes.EmbersFluidType;
 import hu.zoldleo.embers.gui.SlateScreen;
 import hu.zoldleo.embers.item.AlchemicalNoteItem;
+import hu.zoldleo.embers.item.DawnstoneShieldItem;
 import hu.zoldleo.embers.item.EmberStorageItem;
 import hu.zoldleo.embers.item.TyrfingItem;
 import hu.zoldleo.embers.model.AncientGolemModel;
 import hu.zoldleo.embers.model.AshenArmorModel;
+import hu.zoldleo.embers.model.DawnstoneShieldModel;
 import hu.zoldleo.embers.network.PacketHandler;
 import hu.zoldleo.embers.particle.*;
 import hu.zoldleo.embers.power.DefaultEmberItemCapability;
@@ -39,6 +39,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
@@ -140,6 +141,7 @@ public class Embers {
 		RegistryManager.init(event);
 		ResearchManager.initResearches();
 		NeoForge.EVENT_BUS.addListener(EmbersEvents::onJoin);
+		NeoForge.EVENT_BUS.addListener(EventPriority.LOW, EmbersEvents::onEntityIncomingDamage);
 		NeoForge.EVENT_BUS.addListener(EventPriority.LOW, EmbersEvents::onEntityDamaged);
 		NeoForge.EVENT_BUS.addListener(EmbersEvents::onBlockBreak);
 		NeoForge.EVENT_BUS.addListener(EventPriority.LOW, EmbersEvents::onProjectileFired);
@@ -213,10 +215,12 @@ public class Embers {
 
 	public void entityAttributes(EntityAttributeCreationEvent event) {
 		event.put(RegistryManager.ANCIENT_GOLEM.get(), AncientGolemEntity.createAttributes().build());
+        event.put(RegistryManager.EMBER_WISP.get(), EmberWispEntity.createAttributes().build());
 	}
 
 	public void spawnPlacements(RegisterSpawnPlacementsEvent event) {
 		event.register(RegistryManager.ANCIENT_GOLEM.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.AND);
+		event.register(RegistryManager.EMBER_WISP.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EmberWispEntity::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.AND);
 	}
 
 	public void gatherData(GatherDataEvent event) {
@@ -278,13 +282,17 @@ public class Embers {
             NeoForge.EVENT_BUS.addListener(EmbersClientEvents::onLevelRender);
             NeoForge.EVENT_BUS.addListener(EmbersClientEvents::onTooltip);
             NeoForge.EVENT_BUS.addListener(EmbersClientEvents::onWorldRender);
+            NeoForge.EVENT_BUS.addListener(EmbersClientEvents::registerReloadListeners);
 			ItemBlockRenderTypes.setRenderLayer(RegistryManager.STEAM.FLUID.get(), RenderType.translucent());
 			ItemBlockRenderTypes.setRenderLayer(RegistryManager.STEAM.FLUID_FLOW.get(), RenderType.translucent());
 			ItemBlockRenderTypes.setRenderLayer(RegistryManager.DWARVEN_OIL.FLUID.get(), RenderType.translucent());
 			ItemBlockRenderTypes.setRenderLayer(RegistryManager.DWARVEN_OIL.FLUID_FLOW.get(), RenderType.translucent());
 			ItemBlockRenderTypes.setRenderLayer(RegistryManager.DWARVEN_GAS.FLUID.get(), RenderType.translucent());
 			ItemBlockRenderTypes.setRenderLayer(RegistryManager.DWARVEN_GAS.FLUID_FLOW.get(), RenderType.translucent());
-			event.enqueueWork(() -> ItemProperties.register(RegistryManager.INFLICTOR_GEM.get(), res("charged"), (stack, level, entity, seed) -> Boolean.TRUE.equals(stack.get(RegistryManager.INFLICTOR_CHARGE_COMPONENT)) ? 1.0F : 0.0F));
+			event.enqueueWork(() -> {
+                ItemProperties.register(RegistryManager.INFLICTOR_GEM.get(), res("charged"), (stack, level, entity, seed) -> Boolean.TRUE.equals(stack.get(RegistryManager.INFLICTOR_CHARGE_COMPONENT)) ? 1 : 0);
+                ItemProperties.register(RegistryManager.DAWNSTONE_SHIELD.get(), ResourceLocation.withDefaultNamespace("blocking"), (ClampedItemPropertyFunction)((stack, level, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1 : 0));
+            });
 		}
 
         @SubscribeEvent
@@ -329,6 +337,7 @@ public class Embers {
 			event.registerEntityRenderer(RegistryManager.EMBER_PROJECTILE.get(), EmberProjectileRenderer::new);
 			event.registerEntityRenderer(RegistryManager.GLIMMER_PROJECTILE.get(), GlimmerProjectileRenderer::new);
 			event.registerEntityRenderer(RegistryManager.ANCIENT_GOLEM.get(), AncientGolemRenderer::new);
+			event.registerEntityRenderer(RegistryManager.EMBER_WISP.get(), EmberWispRenderer::new);
 
 			event.registerBlockEntityRenderer(RegistryManager.EMBER_BORE_ENTITY.get(), EmberBoreBlockEntityRenderer::new);
 			event.registerBlockEntityRenderer(RegistryManager.MELTER_TOP_ENTITY.get(), MelterTopBlockEntityRenderer::new);
@@ -382,6 +391,7 @@ public class Embers {
 			event.registerLayerDefinition(AshenArmorModel.ASHEN_ARMOR_CHEST, () -> LayerDefinition.create(AshenArmorModel.createChestMesh(), 64, 64));
 			event.registerLayerDefinition(AshenArmorModel.ASHEN_ARMOR_LEGS, () -> LayerDefinition.create(AshenArmorModel.createLegsMesh(), 64, 64));
 			event.registerLayerDefinition(AshenArmorModel.ASHEN_ARMOR_FEET, () -> LayerDefinition.create(AshenArmorModel.createFeetMesh(), 64, 64));
+            event.registerLayerDefinition(DawnstoneShieldModel.LAYER_LOCATION, DawnstoneShieldModel::createLayer);
 		}
 
 		@OnlyIn(Dist.CLIENT)
@@ -432,9 +442,8 @@ public class Embers {
                     RegistryManager.ASHEN_LEGGINGS,
                     RegistryManager.ASHEN_BOOTS
             );
-            event.registerItem(new AlchemicalNoteItem.AlchemicalNoteItemExtensions(),
-                    RegistryManager.ALCHEMICAL_NOTE
-            );
+            event.registerItem(DawnstoneShieldItem.getExtensions(), RegistryManager.DAWNSTONE_SHIELD);
+            event.registerItem(AlchemicalNoteItem.getExtensions(), RegistryManager.ALCHEMICAL_NOTE);
             for (RegistryManager.FluidStuff fluid : RegistryManager.fluidList)
                 if (fluid.TYPE.value() instanceof EmbersFluidType type)
                     event.registerFluidType(type.getFluidTypeExtension(), type);

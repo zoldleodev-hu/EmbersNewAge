@@ -92,8 +92,8 @@ public class ResearchManager {
 	}
 
 	public static void sendResearchData(ServerPlayer player) {
-        ResearchData research = getPlayerResearch(player);
-        PacketDistributor.sendToPlayer(player, new MessageResearchData(research.getCheckmarks()));
+        Map<ResourceLocation, Boolean> research = getPlayerResearch(player);
+        PacketDistributor.sendToPlayer(player, new MessageResearchData(research));
 	}
 
 	public static void receiveResearchData(Map<ResourceLocation, Boolean> checkmarks) {
@@ -124,7 +124,7 @@ public class ResearchManager {
 		}
 	}
 
-	public static ResearchData getPlayerResearch(Player player) {
+	public static Map<ResourceLocation, Boolean> getPlayerResearch(Player player) {
 		return player.getData(RegistryManager.RESEARCH_DATA);
 	}
 

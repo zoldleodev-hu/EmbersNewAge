@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
 @EventBusSubscriber
 public class SuperheaterAugment extends AugmentBase {
@@ -38,7 +38,7 @@ public class SuperheaterAugment extends AugmentBase {
 	}
 
 	@SubscribeEvent
-	public static void onHit(LivingIncomingDamageEvent event) {
+	public static void onHit(LivingDamageEvent.Pre event) {
 		if (event.getSource().getEntity() instanceof Player player) {
 			ItemStack s = player.getMainHandItem();
 			if (AugmentUtil.hasHeat(s)) {
@@ -52,11 +52,11 @@ public class SuperheaterAugment extends AugmentBase {
 					if (event.getEntity().getRemainingFireTicks() < burnTime)
 						event.getEntity().setRemainingFireTicks(burnTime);
 
-					if (event.getEntity().level() instanceof ServerLevel serverLevel) {
+					if (event.getEntity().level() instanceof ServerLevel serverLevel)
 						serverLevel.sendParticles(GlowParticleOptions.EMBER, event.getEntity().getX(), event.getEntity().getY() + event.getEntity().getEyeHeight() / 1.5, event.getEntity().getZ(), 30, 0.15, 0.15, 0.15, 0.3);
-					}
-					EmberInventoryUtil.removeEmber(player, augment.cost);
-					event.setAmount(event.getAmount() + extraDamage);
+
+                    EmberInventoryUtil.removeEmber(player, augment.cost);
+					event.setNewDamage(event.getNewDamage() + extraDamage);
 				}
 			}
 		}

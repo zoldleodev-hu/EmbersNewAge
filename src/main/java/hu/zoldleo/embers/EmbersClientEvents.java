@@ -24,6 +24,7 @@ import hu.zoldleo.embers.blockentity.render.*;
 import hu.zoldleo.embers.datagen.EmbersItemTags;
 import hu.zoldleo.embers.datagen.EmbersSounds;
 import hu.zoldleo.embers.gui.GuiCodex;
+import hu.zoldleo.embers.item.DawnstoneShieldItem;
 import hu.zoldleo.embers.mixin.ModelBakerImplMixin;
 import hu.zoldleo.embers.render.EmbersRenderTypes;
 import hu.zoldleo.embers.research.ResearchBase;
@@ -59,7 +60,13 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
+import net.neoforged.neoforge.client.event.RenderHighlightEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderTooltipEvent;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -337,7 +344,8 @@ public class EmbersClientEvents {
 					tickStartedHoldingCtrl = Integer.MAX_VALUE;
 				}
 				float intensity = (float) (5.0f * (1 - Math.sqrt(1 - Math.pow(openProgress / ((float) ConfigManager.TICKS_TO_OPEN_CODEX.get()), 2)))) - 1.0f;
-				event.getTooltipElements().add(1, Either.right(new GlowingTextTooltip(Component.translatable(Embers.MODID + ".tooltip.research").withStyle(ChatFormatting.DARK_GRAY), intensity)));
+				event.getTooltipElements().add(1, Either.right(new GlowingTextTooltip(intensity)
+                        .addGlowing(Component.translatable(Embers.MODID + ".tooltip.research").withStyle(ChatFormatting.DARK_GRAY))));
 				if (openProgress >= ConfigManager.TICKS_TO_OPEN_CODEX.get() && mc.player != null && mc.level != null) {
 					if (ConfigManager.CODEX_REQUIRED_FOR_LOOKUP.get())
 						mc.player.getInventory().selected = codexIndex;
@@ -352,10 +360,18 @@ public class EmbersClientEvents {
 		if (AugmentUtil.hasHeat(event.getItemStack())) {
 			event.getTooltipElements().add(Either.left(Component.empty()));
 			if (AugmentUtil.getLevel(event.getItemStack()) > 0) {
-				event.getTooltipElements().add(Either.right(new GlowingTextTooltip(Component.translatable(Embers.MODID + ".tooltip.heat_level").withStyle(ChatFormatting.GRAY), Component.literal("" + AugmentUtil.getLevel(event.getItemStack())))));
+                int heatLevel = AugmentUtil.getLevel(event.getItemStack());
+                GlowingTextTooltip heatTooltip = new GlowingTextTooltip()
+                        .addNormal(Component.translatable(Embers.MODID + ".tooltip.heat_level").withStyle(ChatFormatting.GRAY))
+                        .addGlowing(Component.literal(String.valueOf(heatLevel)));
+                if (heatLevel == ConfigManager.MAX_HEAT_LEVEL.get())
+                    heatTooltip.addNormal(Component.translatable(Embers.MODID + ".tooltip.heat_level.max").withStyle(ChatFormatting.DARK_GRAY));
+				event.getTooltipElements().add(Either.right(heatTooltip));
 				int slots = AugmentUtil.getLevel(event.getItemStack()) - AugmentUtil.getTotalAugmentLevel(event.getItemStack());
 				if (slots > 0)
-					event.getTooltipElements().add(Either.right(new GlowingTextTooltip(Component.translatable(Embers.MODID + ".tooltip.augment_slots").withStyle(ChatFormatting.GRAY), Component.literal("" + slots))));
+					event.getTooltipElements().add(Either.right(new GlowingTextTooltip()
+                            .addNormal(Component.translatable(Embers.MODID + ".tooltip.augment_slots").withStyle(ChatFormatting.GRAY))
+                            .addGlowing(Component.literal(String.valueOf(slots)))));
 			}
 			float heat = AugmentUtil.getHeat(event.getItemStack());
 			float maxHeat = AugmentUtil.getMaxHeat(event.getItemStack());
@@ -368,7 +384,7 @@ public class EmbersClientEvents {
 				event.getTooltipElements().add(Either.left(Component.translatable(Embers.MODID + ".tooltip.augments").withStyle(ChatFormatting.GRAY)));
 				for (Holder<IAugment> augment : augments) {
 					int level = AugmentUtil.getAugmentLevel(event.getItemStack(), augment);
-					event.getTooltipElements().add(Either.right(new GlowingTextTooltip(Component.translatable(Embers.MODID + ".tooltip.augment." + augment.getKey().location().toLanguageKey(), Component.translatable(getFormattedModifierLevel(level))))));
+					event.getTooltipElements().add(Either.right(new GlowingTextTooltip().addGlowing(Component.translatable(Embers.MODID + ".tooltip.augment." + augment.getKey().location().toLanguageKey(), Component.translatable(getFormattedModifierLevel(level))))));
 				}
 			}
 		}
@@ -402,6 +418,10 @@ public class EmbersClientEvents {
 			GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, mainRenderTarget.frameBufferId);
 		}
 	}
+
+    public static void registerReloadListeners(AddReloadListenerEvent event) {
+        event.addListener(DawnstoneShieldItem.getExtensions().getCustomRenderer());
+    }
 
     public static class Overlay implements LayeredDraw.Layer {
         @Override

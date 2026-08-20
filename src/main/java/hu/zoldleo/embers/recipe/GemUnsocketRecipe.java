@@ -26,14 +26,14 @@ public class GemUnsocketRecipe implements CraftingRecipe {
         if (container.size() != 1)
             return false;
         ItemStack stack = container.getItem(0);
-        return stack.getItem() instanceof IInflictorGemHolder gemItem && gemItem.getAttachedGemCount(stack) > 0;
+        return stack.getItem() instanceof IInflictorGemHolder gemItem && !gemItem.isEmpty(stack);
 	}
 
 	@Override
 	public @NotNull ItemStack assemble(CraftingInput container, HolderLookup.@NotNull Provider registryAccess) {
 		ItemStack capeStack = container.getItem(0).copy();
         IInflictorGemHolder gemItem = (IInflictorGemHolder)capeStack.getItem();
-        gemItem.detachGem(capeStack, gemItem.getAttachedGemCount(capeStack) - 1);
+        gemItem.detachGem(capeStack);
 		return capeStack;
 	}
 
@@ -42,7 +42,7 @@ public class GemUnsocketRecipe implements CraftingRecipe {
 		for (int i = 0; i < container.size(); i++) {
 			ItemStack stack = container.getItem(i);
 			if (!stack.isEmpty() && stack.getItem() instanceof IInflictorGemHolder gemItem)
-                return ItemStackNonNullList.of(gemItem.getAttachedGems(stack)[gemItem.getAttachedGemCount(stack) - 1]);
+                return ItemStackNonNullList.of(gemItem.getLastGem(stack));
 		}
         return ItemStackNonNullList.of();
 	}

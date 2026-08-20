@@ -36,7 +36,7 @@ public class GemSocketRecipe implements CraftingRecipe {
 		int gems = 0;
 		for (int i = 0; i < container.size(); i ++) {
 			ItemStack stack = container.getItem(i);
-			if (stack.getItem() instanceof IInflictorGemHolder gemHolder && gemHolder.getAttachedGemCount(stack) == 0) {
+			if (stack.getItem() instanceof IInflictorGemHolder gemHolder && !gemHolder.isFull(stack)) {
 				cloak = stack;
                 break;
             }
@@ -67,13 +67,10 @@ public class GemSocketRecipe implements CraftingRecipe {
                 break;
             }
 		if (!capeStack.isEmpty()) {
-			int counter = 0;
 			for (int i = 0; i < container.size(); i ++) {
 				ItemStack stack = container.getItem(i);
-				if (!stack.isEmpty() && stack.getItem() instanceof IInflictorGem) {
-					((IInflictorGemHolder)capeStack.getItem()).attachGem(capeStack, stack, counter);
-					counter++;
-				}
+				if (!stack.isEmpty() && stack.getItem() instanceof IInflictorGem)
+					((IInflictorGemHolder)capeStack.getItem()).attachGem(capeStack, stack);
 			}
 			return capeStack;
 		}
@@ -101,15 +98,13 @@ public class GemSocketRecipe implements CraftingRecipe {
                 break;
             }
 
-        int counter = 0;
         for(int i = 0; i < nonnulllist.size(); ++i) {
             ItemStack item = input.getItem(i);
             if (item.hasCraftingRemainingItem())
                 nonnulllist.set(i, item.getCraftingRemainingItem());
             else if (!capeStack.isEmpty() && item.getItem() instanceof IInflictorGem) {
-                if (!((IInflictorGemHolder)capeStack.getItem()).canAttachGem(capeStack, item, counter))
+                if (!((IInflictorGemHolder)capeStack.getItem()).canAttachGem(capeStack, item))
                     nonnulllist.set(i, item);
-                counter++;
             }
         }
 

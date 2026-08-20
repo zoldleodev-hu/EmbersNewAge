@@ -9,10 +9,8 @@ import hu.zoldleo.embers.api.item.IInflictorGem;
 import hu.zoldleo.embers.api.item.IInflictorGemHolder;
 
 import hu.zoldleo.embers.datacomponents.GemSocketComponent;
-import hu.zoldleo.embers.util.ItemStackNonNullList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
@@ -32,54 +30,54 @@ public class AshenArmorGemItem extends AshenArmorItem implements IInflictorGemHo
 
 	@Override
 	public int getGemSlots(ItemStack holder) {
-        NonNullList<ItemStack> gems = holder.get(RegistryManager.GEM_SOCKET_COMPONENT);
-		return gems == null ? gemSlots.get() : gems.size();
+        GemSocketComponent gems = holder.get(RegistryManager.GEM_SOCKET_COMPONENT);
+		return gems == null ? gemSlots.get() : gems.sockets();
 	}
 
 	@Override
-	public boolean canAttachGem(ItemStack holder, ItemStack gem) {
-		return gem.getItem() instanceof IInflictorGem;
-	}
-
-	@Override
-	public void attachGem(ItemStack holder, ItemStack gem, int slot) {
+	public void attachGem(ItemStack holder, ItemStack gem) {
         if (!canAttachGem(holder, gem))
             return;
         GemSocketComponent gems = holder.get(RegistryManager.GEM_SOCKET_COMPONENT);
-        gems = gems == null ? GemSocketComponent.withSize(gemSlots.get()) : GemSocketComponent.copy(gems);
-        if (gems.size() > slot) {
-            gems.set(slot, gem.copy());
+        gems = gems == null ? new GemSocketComponent(gemSlots.get()) : gems.copy();
+        if (gems.socketGem(gem.copy()))
             holder.set(RegistryManager.GEM_SOCKET_COMPONENT, gems);
-        }
 	}
 
 	@Override
-	public ItemStack detachGem(ItemStack holder, int slot) {
+	public ItemStack detachGem(ItemStack holder) {
         GemSocketComponent gems = holder.get(RegistryManager.GEM_SOCKET_COMPONENT);
         if (gems == null)
             return ItemStack.EMPTY;
-        gems = GemSocketComponent.copy(gems);
-        ItemStack gem = ItemStack.EMPTY;
-        if (gems.size() > slot)
-            gem = gems.get(slot);
-        if (!gem.isEmpty()) {
-            gems.set(slot, ItemStack.EMPTY);
+        gems = gems.copy();
+        ItemStack gem = gems.unsocketGem();
+        if (!gem.isEmpty())
             holder.set(RegistryManager.GEM_SOCKET_COMPONENT, gems);
-        }
         return gem;
 	}
+
+    @Override
+    public ItemStack getLastGem(ItemStack holder)  {
+        GemSocketComponent gems = holder.get(RegistryManager.GEM_SOCKET_COMPONENT);
+        return gems == null ? ItemStack.EMPTY : gems.getLast();
+    }
+
 
 	@Override
 	public void clearGems(ItemStack holder) {
         holder.remove(RegistryManager.GEM_SOCKET_COMPONENT);
-        /*/NonNullList<ItemStack> gems = holder.get(RegistryManager.GEM_SOCKET_COMPONENT);
-        if (gems != null)
-            gems.clear(); // Sets all slots to ItemStack.EMPTY*/
 	}
+
+    @Override
+    public int getAttachedGemCount(ItemStack holder) {
+        GemSocketComponent gems = holder.get(RegistryManager.GEM_SOCKET_COMPONENT);
+        return gems == null ? 0 : gems.socketedGems();
+    }
 
 	@Override
 	public ItemStack[] getAttachedGems(ItemStack holder) {
-        return holder.getOrDefault(RegistryManager.GEM_SOCKET_COMPONENT, ItemStackNonNullList.of()).toArray(new ItemStack[0]);
+        GemSocketComponent component = holder.get(RegistryManager.GEM_SOCKET_COMPONENT);
+        return  component != null ? component.getAttachedGems() : new ItemStack[0];
 	}
 
 	@Override

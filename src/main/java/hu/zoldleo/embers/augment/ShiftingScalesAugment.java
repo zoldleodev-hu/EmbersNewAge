@@ -20,9 +20,6 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.DoubleTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -37,13 +34,11 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.UnknownNullability;
 
 @EventBusSubscriber
 public class ShiftingScalesAugment extends AugmentBase {
@@ -221,48 +216,6 @@ public class ShiftingScalesAugment extends AugmentBase {
 			frame++;
 		}
 	}
-
-	public static class ScalesData implements INBTSerializable<DoubleTag> {
-        /*/public static final Codec<ScalesData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.DOUBLE.fieldOf("scales").forGetter(ScalesData::getScales)
-        ).apply(instance, ScalesData::new));*/
-
-		public double scales = -1;
-
-        public ScalesData() {
-
-        }
-
-        public ScalesData(double scales) {
-            this.scales = scales;
-        }
-
-		public double getScales() {
-			return scales;
-		}
-
-		public void setScales(double scales) {
-			this.scales = scales;
-		}
-
-		public void writeToNBT(CompoundTag tag) {
-			tag.putDouble("scales", scales);
-		}
-
-		public void readFromNBT(CompoundTag tag) {
-			scales = tag.getDouble("scales");
-		}
-
-        @Override
-        public @UnknownNullability DoubleTag serializeNBT(HolderLookup.@NotNull Provider provider) {
-            return DoubleTag.valueOf(scales);
-        }
-
-        @Override
-        public void deserializeNBT(HolderLookup.@NotNull Provider provider, DoubleTag tag) {
-            scales = tag.getAsDouble();
-        }
-    }
 
     @OnlyIn(Dist.CLIENT)
     public static class Overlay implements LayeredDraw.Layer {

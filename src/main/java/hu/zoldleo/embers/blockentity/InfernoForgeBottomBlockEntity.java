@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.google.common.collect.Lists;
+import hu.zoldleo.embers.ConfigManager;
 import hu.zoldleo.embers.RegistryManager;
 import hu.zoldleo.embers.api.augment.AugmentUtil;
 import hu.zoldleo.embers.api.event.DialInformationEvent;
@@ -51,7 +52,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class InfernoForgeBottomBlockEntity extends BlockEntity implements IExtraDialInformation, ISoundController, IUpgradeable, IEmberBlock {
 	public static double EMBER_COST = 16.0;
-	public static int MAX_LEVEL = 5; // TODO: config
 	public static double MAX_CRYSTAL_VALUE = 3600 * 32.0;
 	public static double CHANCE_MIDPOINT = 3600 * 4.0;
 	public static int PROCESS_TIME = 200;
@@ -238,7 +238,7 @@ public class InfernoForgeBottomBlockEntity extends BlockEntity implements IExtra
 		for (ItemEntity item : items) {
 			final ItemStack stack = item.getItem();
 			if (AugmentUtil.hasHeat(stack) || stack.is(Tags.Items.MUSIC_DISCS)) {
-				if (pickedItem.isEmpty() && ((AugmentUtil.getLevel(stack) < MAX_LEVEL && AugmentUtil.getHeat(stack) >= AugmentUtil.getMaxHeat(stack)) || stack.is(Tags.Items.MUSIC_DISCS)))
+				if (pickedItem.isEmpty() && ((AugmentUtil.getLevel(stack) < ConfigManager.MAX_HEAT_LEVEL.get() && AugmentUtil.getHeat(stack) >= AugmentUtil.getMaxHeat(stack)) || stack.is(Tags.Items.MUSIC_DISCS)))
 					pickedItem = stack;
 				else return Lists.newArrayList();
 			} else {

@@ -22,12 +22,6 @@ public class AlchemicalNoteItem extends Item {
 		super(pProperties);
 	}
 
-	/*/@Override
-	@OnlyIn(Dist.CLIENT)
-	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-		consumer.accept(new AlchemicalNoteItemExtensions());
-	}*/
-
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag isAdvanced) {
 		ItemStack result = AlchemyHintItem.getResult(stack);
@@ -35,12 +29,23 @@ public class AlchemicalNoteItem extends Item {
 			tooltip.add(Component.translatable(result.getDescriptionId()).withStyle(ChatFormatting.GRAY));
 	}
 
+    @OnlyIn(Dist.CLIENT)
+    public static IClientItemExtensions getExtensions() {
+        return AlchemicalNoteItemExtensions.instance;
+    }
+
 	@OnlyIn(Dist.CLIENT)
-	public static class AlchemicalNoteItemExtensions implements IClientItemExtensions {
+	private static class AlchemicalNoteItemExtensions implements IClientItemExtensions {
+        public static AlchemicalNoteItemExtensions instance = new AlchemicalNoteItemExtensions();
+        private AlchemicalNoteItemRenderer renderer;
+
 		@Override
 		public @NotNull BlockEntityWithoutLevelRenderer getCustomRenderer() {
-			Minecraft minecraft = Minecraft.getInstance();
-			return new AlchemicalNoteItemRenderer(minecraft.getBlockEntityRenderDispatcher(), minecraft.getEntityModels());
+            if (renderer == null) {
+                Minecraft minecraft = Minecraft.getInstance();
+                renderer = new AlchemicalNoteItemRenderer(minecraft.getBlockEntityRenderDispatcher(), minecraft.getEntityModels());
+            }
+            return renderer;
 		}
 	}
 }

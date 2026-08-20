@@ -33,13 +33,13 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.event.AnvilUpdateEvent;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
@@ -61,31 +61,40 @@ public class EmbersEvents {
         PacketDistributor.sendToPlayer(player, new MessageEmberGenOffset(EmberGenUtil.offX, EmberGenUtil.offZ));
 	}
 
-	public static void onEntityDamaged(LivingIncomingDamageEvent event) {
+    // Before checking for i-frames, shield block, etc.
+	public static void onEntityIncomingDamage(LivingIncomingDamageEvent event) {
         Optional<Registry<DamageType>> optReg = event.getEntity().level().registryAccess().registry(Registries.DAMAGE_TYPE);
 		if (optReg.isPresent() && event.getSource().type().equals(optReg.get().getHolderOrThrow(EmbersDamageTypes.EMBER_KEY).value()))
 			if (event.getEntity().fireImmune() || event.getEntity().hasEffect(MobEffects.FIRE_RESISTANCE))
 				event.setAmount(event.getAmount() * 0.5f);
 
-		attuneInflictorGem(event.getEntity(), event.getSource(), event.getEntity().getMainHandItem());
-		attuneInflictorGem(event.getEntity(), event.getSource(), event.getEntity().getOffhandItem());
-
 		float mult = 1.0f;
-		for (ItemStack armor : event.getEntity().getArmorSlots()) {
+		for (ItemStack armor : event.getEntity().getArmorSlots())
 			mult -= getInflictorGemResistance(event, armor);
-			addHeat(event.getEntity(), armor, 5.0f);
-		}
+        for (ItemStack hand : event.getEntity().getHandSlots())
+            mult -= getInflictorGemResistance(event, hand);
 		if (mult <= 0)
 			event.setCanceled(true);
 		event.setAmount(event.getAmount() * mult);
 
-		if (event.getSource().getDirectEntity() instanceof LivingEntity livingSource) {
-			final ItemStack heldStack = livingSource.getMainHandItem();
-			if (heldStack.getItem() instanceof ITyrfingWeapon tyrfing)
+		if (event.getSource().getDirectEntity() instanceof LivingEntity livingSource)
+			if (livingSource.getMainHandItem().getItem() instanceof ITyrfingWeapon tyrfing)
 				tyrfing.attack(event, event.getEntity().getArmorValue());
-			addHeat(livingSource, heldStack, Math.max(1.0f, 0.5f * event.getAmount()));
-		}
 	}
+
+    // After actually taking damage
+    public static void onEntityDamaged(LivingDamageEvent.Post event) {
+        attuneInflictorGem(event.getEntity(), event.getSource(), event.getEntity().getMainHandItem());
+        attuneInflictorGem(event.getEntity(), event.getSource(), event.getEntity().getOffhandItem());
+
+        for (ItemStack armor : event.getEntity().getArmorSlots())
+            addHeat(event.getEntity(), armor, 5f);
+        for (ItemStack hand : event.getEntity().getHandSlots())
+            addHeat(event.getEntity(), hand, 5f);
+
+        if (event.getSource().getDirectEntity() instanceof LivingEntity livingSource)
+            addHeat(livingSource, livingSource.getMainHandItem(), Math.max(1.0f, 0.5f * event.getNewDamage()));
+    }
 
 	public static void onBlockBreak(BlockEvent.BreakEvent event) {
 		Player player = event.getPlayer();
@@ -217,8 +226,7 @@ public class EmbersEvents {
 	}
 
 	public static float getInflictorGemResistance(LivingIncomingDamageEvent event, ItemStack stack) {
-		Item item = stack.getItem();
-		if (item instanceof IInflictorGemHolder inflictorGemHolder)
+		if (stack.getItem() instanceof IInflictorGemHolder inflictorGemHolder)
             return inflictorGemHolder.getTotalDamageResistance(event.getEntity(), event.getSource(), stack);
 		return 0;
 	}

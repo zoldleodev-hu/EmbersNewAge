@@ -1,43 +1,44 @@
 package hu.zoldleo.embers.util;
 
+import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
 import hu.zoldleo.embers.gui.GuiCodex;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class GlowingTextTooltip implements TooltipComponent {
+    protected final List<GlowComponent> components;
+	public float intensity;
 
-	public Component normalText;
-	public Component glowingText;
-	public float intensity = -2.0F;
+    public GlowingTextTooltip(float intensity) {
+        this.intensity = intensity;
+        components = new LinkedList<>();
+    }
 
-	public GlowingTextTooltip(Component normalText, Component glowingText, float intensity) {
-		this.normalText = normalText;
-		this.glowingText = glowingText;
-		this.intensity = intensity;
-	}
+    public GlowingTextTooltip() {
+        this(-2f);
+    }
 
-	public GlowingTextTooltip(Component glowingText, float intensity) {
-		this(Component.empty(), glowingText, intensity);
-	}
+    public GlowingTextTooltip addNormal(Component normalText) {
+        components.add(new GlowComponent(normalText, false));
+        return this;
+    }
 
-	public GlowingTextTooltip(Component normalText, Component glowingText) {
-		this(normalText, glowingText, -2.0F);
-	}
-
-	public GlowingTextTooltip(Component glowingText) {
-		this(Component.empty(), glowingText, -2.0F);
-	}
+    public GlowingTextTooltip addGlowing(Component normalText) {
+        components.add(new GlowComponent(normalText, true));
+        return this;
+    }
 
 	public static class GlowingTextClientTooltip implements ClientTooltipComponent {
-
 		GlowingTextTooltip tooltip;
 
 		public GlowingTextClientTooltip(GlowingTextTooltip tooltip) {
@@ -50,26 +51,32 @@ public class GlowingTextTooltip implements TooltipComponent {
 		}
 
 		@Override
-		public int getWidth(Font font) {
-			return font.width(tooltip.normalText) + font.width(tooltip.glowingText);
+		public int getWidth(@NotNull Font font) {
+            int width = 0;
+            for (GlowComponent component : tooltip.components)
+                width += font.width(component.component());
+			return width;
 		}
 
 		@Override
-		public void renderText(Font font, int mouseX, int mouseY, Matrix4f matrix, MultiBufferSource.BufferSource bufferSource) {
-			font.drawInBatch(tooltip.normalText, (float)mouseX, (float)mouseY, -1, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
-		}
-
-		@Override
-		public void renderImage(Font font, int x, int y, GuiGraphics graphics) {
-			if (tooltip.intensity < -1.0f) {
-				GuiCodex.drawTextGlowingAura(font, graphics, tooltip.glowingText.getVisualOrderText(), font.width(tooltip.normalText) + x, y);
-			} else {
-				font.drawInBatch(tooltip.glowingText, x, y, -1, true, graphics.pose().last().pose(), graphics.bufferSource(), Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
-				graphics.pose().pushPose();
-				graphics.pose().translate(0, 0, 0.06);
-				GuiCodex.drawTextGlowingAura(font, graphics, tooltip.glowingText.plainCopy().getVisualOrderText(), font.width(tooltip.normalText) + x, y, tooltip.intensity);
-				graphics.pose().popPose();
-			}
+		public void renderText(@NotNull Font font, int mouseX, int mouseY, @NotNull Matrix4f matrix, MultiBufferSource.@NotNull BufferSource bufferSource) {
+            int offset = 0;
+            Matrix4f translatedMatrix = new Matrix4f(matrix).translate(0, 0, 0.06f);
+            for (GlowComponent component : tooltip.components) {
+                if (component.glowing()) {
+                    if (tooltip.intensity < -1f) {
+                        GuiCodex.drawTextGlowingAura(font, bufferSource, matrix, component.component().getVisualOrderText(), mouseX + offset, mouseY);
+                    } else {
+                        font.drawInBatch(component.component(), mouseX, mouseY, -1, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
+                        GuiCodex.drawTextGlowingAura(font, bufferSource, translatedMatrix, component.component().plainCopy().getVisualOrderText(), mouseX + offset, mouseY, tooltip.intensity);
+                    }
+                } else {
+                    font.drawInBatch(component.component(), mouseX + offset, mouseY, -1, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
+                }
+                offset += font.width(component.component());
+            }
 		}
 	}
+
+    protected record GlowComponent(Component component, boolean glowing) {}
 }

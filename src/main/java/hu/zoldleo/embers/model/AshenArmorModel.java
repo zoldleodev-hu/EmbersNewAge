@@ -6,7 +6,7 @@ import java.util.Map;
 import hu.zoldleo.embers.Embers;
 import hu.zoldleo.embers.RegistryManager;
 
-import hu.zoldleo.embers.util.ItemStackNonNullList;
+import hu.zoldleo.embers.datacomponents.GemSocketComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -18,7 +18,6 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.core.NonNullList;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -82,9 +81,12 @@ public class AshenArmorModel extends HumanoidModel<LivingEntity> {
 				this.cape.xRot = 0;
 			}
 			if (itemStack.getItem() == RegistryManager.ASHEN_CLOAK.get() && itemStack.has(RegistryManager.GEM_SOCKET_COMPONENT)) {
-                NonNullList<ItemStack> socketedGems = itemStack.getOrDefault(RegistryManager.GEM_SOCKET_COMPONENT, ItemStackNonNullList.of());
-				for (int i = 0; i < gems.length && i < socketedGems.size(); i++)
-					gems[i].visible = !socketedGems.get(i).isEmpty();
+                GemSocketComponent component = itemStack.get(RegistryManager.GEM_SOCKET_COMPONENT);
+                if (component != null) {
+                    ItemStack[] socketedGems = component.getAttachedGems();
+                    for (int i = 0; i < gems.length && i < socketedGems.length; i++)
+                        gems[i].visible = !socketedGems[i].isEmpty();
+                }
 			} else {
                 for (ModelPart gem : gems)
                     gem.visible = false;

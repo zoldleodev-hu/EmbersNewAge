@@ -1,7 +1,6 @@
 package hu.zoldleo.embers.network.message;
 
 import hu.zoldleo.embers.Embers;
-import hu.zoldleo.embers.research.ResearchData;
 import hu.zoldleo.embers.research.ResearchManager;
 
 import io.netty.buffer.ByteBuf;
@@ -12,6 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class MessageResearchTick implements CustomPacketPayload {
     public static final Type<MessageResearchTick> TYPE = new Type<>(Embers.res("research_tick"));
@@ -33,8 +34,8 @@ public class MessageResearchTick implements CustomPacketPayload {
 		if (!(ctx.player() instanceof ServerPlayer player))
             return;
         ctx.enqueueWork(() -> {
-            ResearchData research = ResearchManager.getPlayerResearch(player);
-            research.setCheckmark(msg.research, msg.ticked);
+            Map<ResourceLocation, Boolean> research = ResearchManager.getPlayerResearch(player);
+            research.put(msg.research, msg.ticked);
             ResearchManager.sendResearchData(player);
         });
 	}

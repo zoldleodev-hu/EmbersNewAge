@@ -50,6 +50,8 @@ public class ConfigManager {
 	public static ConfigValue<Integer> ASHEN_CLOAK_SLOTS;
 	public static ConfigValue<Integer> ASHEN_LEGGINGS_SLOTS;
 	public static ConfigValue<Integer> ASHEN_BOOTS_SLOTS;
+	public static ConfigValue<Integer> DAWNSTONE_SHIELD_SLOTS;
+    public static ConfigValue<Integer> MAX_HEAT_LEVEL;
 	public static ConfigValue<List<? extends String>> SCALE_DAMAGE_PASSES;
 	public static ConfigValue<List<? extends String>> SCALE_DAMAGE_RATES;
 
@@ -160,6 +162,9 @@ public class ConfigManager {
 		ASHEN_CLOAK_SLOTS = COMMON.comment("How many inflictor gems can fit in the ashen cloak.").define("ashen.cloak.gem_slots", 7);
 		ASHEN_LEGGINGS_SLOTS = COMMON.comment("How many inflictor gems can fit in the ashen leggings.").define("ashen.leggings.gem_slots", 5);
 		ASHEN_BOOTS_SLOTS = COMMON.comment("How many inflictor gems can fit in the ashen boots.").define("ashen.boots.gem_slots", 3);
+        DAWNSTONE_SHIELD_SLOTS = COMMON.comment("How many inflictor gems can fit in the dawnstone shield.").define("shield.dawnstone.gemslots", 3);
+
+        MAX_HEAT_LEVEL = COMMON.comment("The maximum number of augments that can be put on a single piece of equipment.").define("heat.max_level", 5);
 
 		List<String> defaultScaleDamagePasses = new ArrayList<>();
 		defaultScaleDamagePasses.add("drown:1.0");

@@ -14,7 +14,6 @@ import hu.zoldleo.embers.api.IEmbersAPI;
 import hu.zoldleo.embers.api.augment.AugmentUtil;
 import hu.zoldleo.embers.api.misc.HammerTarget;
 import hu.zoldleo.embers.api.upgrades.UpgradeUtil;
-import hu.zoldleo.embers.augment.ShiftingScalesAugment.ScalesData;
 import hu.zoldleo.embers.network.message.MessageScalesData;
 import hu.zoldleo.embers.util.EmberGenUtil;
 import hu.zoldleo.embers.util.EmberInventoryUtil;
@@ -147,15 +146,15 @@ public class EmbersAPIImpl implements IEmbersAPI {
 
 	@Override
 	public double getScales(LivingEntity entity) {
-        return entity.getData(RegistryManager.SCALES_DATA).getScales();
+        return entity.getData(RegistryManager.SCALES_DATA);
     }
 
 	@Override
 	public void setScales(LivingEntity entity, double scales) {
-		ScalesData cap = entity.getData(RegistryManager.SCALES_DATA);
-        if (entity instanceof ServerPlayer player && cap.getScales() != scales)
+		double cap = entity.getData(RegistryManager.SCALES_DATA);
+        if (entity instanceof ServerPlayer player && cap != scales)
             PacketDistributor.sendToPlayer(player, new MessageScalesData());
-        cap.setScales(scales);
+        entity.setData(RegistryManager.SCALES_DATA, scales);
     }
 
 	@Override

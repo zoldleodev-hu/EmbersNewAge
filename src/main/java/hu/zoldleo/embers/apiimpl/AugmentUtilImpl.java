@@ -290,17 +290,17 @@ public class AugmentUtilImpl implements IAugmentUtil {
                 maxLevel = l;
         }
         if (hasHeat(entity.getItemBySlot(EquipmentSlot.CHEST))) {
-            int l = getAugmentLevel.apply(entity.getItemBySlot(EquipmentSlot.HEAD), augment);
+            int l = getAugmentLevel.apply(entity.getItemBySlot(EquipmentSlot.CHEST), augment);
             if (l > maxLevel)
                 maxLevel = l;
         }
         if (hasHeat(entity.getItemBySlot(EquipmentSlot.LEGS))) {
-            int l = getAugmentLevel.apply(entity.getItemBySlot(EquipmentSlot.HEAD), augment);
+            int l = getAugmentLevel.apply(entity.getItemBySlot(EquipmentSlot.LEGS), augment);
             if (l > maxLevel)
                 maxLevel = l;
         }
         if (hasHeat(entity.getItemBySlot(EquipmentSlot.FEET))) {
-            int l = getAugmentLevel.apply(entity.getItemBySlot(EquipmentSlot.HEAD), augment);
+            int l = getAugmentLevel.apply(entity.getItemBySlot(EquipmentSlot.FEET), augment);
             if (l > maxLevel)
                 maxLevel = l;
         }

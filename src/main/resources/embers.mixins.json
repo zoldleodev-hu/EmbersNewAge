@@ -4,6 +4,7 @@
   "package": "hu.zoldleo.embers.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "LivingEntityMixin"
   ],
   "client": [
     "ModelBakerImplMixin"

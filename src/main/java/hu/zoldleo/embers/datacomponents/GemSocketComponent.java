@@ -1,48 +1,75 @@
 package hu.zoldleo.embers.datacomponents;
 
-import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
-import hu.zoldleo.embers.util.ItemStackNonNullList;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
 
-public class GemSocketComponent extends ItemStackNonNullList {
-    public static final Codec<GemSocketComponent> CODEC = ItemStack.OPTIONAL_CODEC.listOf().xmap(GemSocketComponent::copy, Function.identity());
-    public static final StreamCodec<RegistryFriendlyByteBuf, GemSocketComponent> STREAM_CODEC = ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.collection(GemSocketComponent::createWithCapacity));
+public class GemSocketComponent {
+    public static final Codec<GemSocketComponent> CODEC = ItemStack.OPTIONAL_CODEC.listOf().xmap(GemSocketComponent::new, x -> x.list);
+    public static final StreamCodec<RegistryFriendlyByteBuf, GemSocketComponent> STREAM_CODEC = ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list()).map(GemSocketComponent::new, x -> x.list);
+
+    private final List<ItemStack> list;
+    private int socketedGemCount;
+
+    public GemSocketComponent(int sockets) {
+        this(NonNullList.withSize(sockets, ItemStack.EMPTY), 0);
+    }
 
     protected GemSocketComponent(List<ItemStack> list) {
-        super(list);
+        this.list = list;
+        for (ItemStack gem : list) {
+            if (gem.isEmpty())
+                break;
+            socketedGemCount++;
+        }
     }
 
-    @NotNull
-    public static GemSocketComponent copy(Collection<ItemStack> entries) {
-        return new GemSocketComponent(new ArrayList<>(entries));
+    private GemSocketComponent(List<ItemStack> list, int socketedGemCount) {
+        this.list = list;
+        this.socketedGemCount = socketedGemCount;
     }
 
-    @NotNull
-    public static GemSocketComponent createWithCapacity(int initialCapacity) {
-        return new GemSocketComponent(Lists.newArrayListWithCapacity(initialCapacity));
+    public int sockets() {
+        return list.size();
     }
 
-    @NotNull
-    public static GemSocketComponent withSize(int size) {
-        ItemStack[] aobject = new ItemStack[size];
-        Arrays.fill(aobject, ItemStack.EMPTY);
-        return new GemSocketComponent(Lists.newArrayList(aobject));
+    public int socketedGems() {
+        return socketedGemCount;
     }
 
-    @NotNull
-    public static GemSocketComponent of(ItemStack... elements) {
-        return new GemSocketComponent(Lists.newArrayList(elements));
+    public ItemStack[] getAttachedGems() {
+        return list.toArray(new ItemStack[0]);
+    }
+
+    public boolean socketGem(ItemStack gem) {
+        if (socketedGemCount >= list.size())
+            return false;
+        list.set(socketedGemCount++, gem);
+        return true;
+    }
+
+    public ItemStack unsocketGem() {
+        if (socketedGemCount <= 0)
+            return ItemStack.EMPTY;
+        if (socketedGemCount > list.size())
+            socketedGemCount = list.size();
+        return list.set(--socketedGemCount, ItemStack.EMPTY);
+    }
+
+    public ItemStack getLast() {
+        return socketedGemCount <= 0 ? ItemStack.EMPTY : list.get(socketedGemCount - 1);
+    }
+
+    public GemSocketComponent copy() {
+        List<ItemStack> newList = NonNullList.withSize(list.size(), ItemStack.EMPTY);
+        for (int i = 0; i < list.size(); i++)
+            newList.set(i, list.get(i).copy());
+        return new GemSocketComponent(newList, socketedGemCount);
     }
 
     @Override
@@ -52,12 +79,12 @@ public class GemSocketComponent extends ItemStackNonNullList {
             return true;
         if (!(obj instanceof GemSocketComponent other))
             return false;
-        return ItemStack.listMatches(this, other);
+        return ItemStack.listMatches(list, other.list);
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public int hashCode() {
-        return ItemStack.hashStackList(this);
+        return ItemStack.hashStackList(list);
     }
 }

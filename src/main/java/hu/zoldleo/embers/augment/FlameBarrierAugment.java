@@ -16,7 +16,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
 @EventBusSubscriber
 public class FlameBarrierAugment extends AugmentBase {
@@ -25,7 +25,7 @@ public class FlameBarrierAugment extends AugmentBase {
 	}
 
 	@SubscribeEvent
-	public static void onHit(LivingIncomingDamageEvent event) {
+	public static void onHit(LivingDamageEvent.Post event) {
 		if (event.getEntity() instanceof Player player && event.getSource().getEntity() instanceof LivingEntity) {
             FlameBarrierAugment augment = (FlameBarrierAugment)RegistryManager.FLAME_BARRIER_AUGMENT.value();
 			int barrierLevel = AugmentUtil.getArmorAugmentLevel(player, RegistryManager.FLAME_BARRIER_AUGMENT);
@@ -33,7 +33,7 @@ public class FlameBarrierAugment extends AugmentBase {
 			if (barrierLevel > 0 && EmberInventoryUtil.getEmberTotal(player) >= augment.cost) {
 				EmberInventoryUtil.removeEmber(player, augment.cost);
 				DamageSource damage = new DamageEmber(player.level().registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(EmbersDamageTypes.EMBER_KEY), player);
-				event.getSource().getEntity().hurt(damage, strength*event.getAmount()*0.5f);
+				event.getSource().getEntity().hurt(damage, strength*event.getNewDamage() * 0.5f);
 				event.getSource().getEntity().igniteForSeconds(barrierLevel+1);
 				event.getEntity().level().playSound(null, event.getEntity(), EmbersSounds.FIREBALL_HIT.get(), SoundSource.PLAYERS, 1.0f, 1.0f);
 
