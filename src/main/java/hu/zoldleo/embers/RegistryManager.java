@@ -469,6 +469,7 @@ public class RegistryManager {
 	public static final DeferredItem<Item> FOCAL_LENS = ITEMS.register("focal_lens", () -> new Item(new Item.Properties()));
 	public static final DeferredItem<Item> SHIFTING_SCALES = ITEMS.register("shifting_scales", () -> new Item(new Item.Properties()));
 	public static final DeferredItem<Item> WINDING_GEARS = ITEMS.register("winding_gears", () -> new Item(new Item.Properties()));
+	public static final DeferredItem<Item> EMBER_REDIRECTION_MODULE = ITEMS.register("ember_redirection_module", () -> new Item(new Item.Properties()));
 
 	static { COPPER_CRYSTAL_SEED.makeItem(); }
 	static { IRON_CRYSTAL_SEED.makeItem(); }
@@ -814,6 +815,7 @@ public class RegistryManager {
 	public static final Holder<IAugment> FOCAL_LENS_AUGMENT = registerAugment("focal_lens", new FocalLensAugment());
 	public static final Holder<IAugment> SHIFTING_SCALES_AUGMENT = registerAugment("shifting_scales", new ShiftingScalesAugment());
 	public static final Holder<IAugment> WINDING_GEARS_AUGMENT = registerAugment("winding_gears", new WindingGearsAugment());
+    public static final Holder<IAugment> EMBER_REDIRECTION_MODULE_AUGMENT = registerAugment("ember_redirection_module", new EmberRedirectionModuleAugment());
 
 	//particle types
 	public static final DeferredHolder<ParticleType<?>, ParticleType<GlowParticleOptions>> GLOW_PARTICLE = registerParticle("glow", false, GlowParticleOptions.CODEC, GlowParticleOptions.STREAM_CODEC);

@@ -87,7 +87,7 @@ public class AugmentUtil {
         return IMPL.getAugmentLevel(stack, augment);
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public static int getAugmentLevel(ItemStack stack, IAugment augment) {
         return IMPL.getAugmentLevel(stack, augment);
     }

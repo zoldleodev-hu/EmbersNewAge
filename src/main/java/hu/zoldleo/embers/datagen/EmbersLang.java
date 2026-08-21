@@ -213,6 +213,7 @@ public class EmbersLang extends LanguageProvider {
 		addItem(RegistryManager.FOCAL_LENS, "Focal Lens");
 		addItem(RegistryManager.SHIFTING_SCALES, "Shifting Scales");
 		addItem(RegistryManager.WINDING_GEARS, "Winding Gears");
+		addItem(RegistryManager.EMBER_REDIRECTION_MODULE, "Ember Redirection Module");
 
 		addItem(RegistryManager.RAW_CAMINITE_PLATE, "Raw Caminite Plate");
 		addItem(RegistryManager.RAW_FLAT_STAMP, "Raw Flat Stamp");
@@ -304,6 +305,7 @@ public class EmbersLang extends LanguageProvider {
 		addAugment(RegistryManager.FOCAL_LENS_AUGMENT, "Focused");
 		addAugment(RegistryManager.SHIFTING_SCALES_AUGMENT, "Scaly");
 		addAugment(RegistryManager.WINDING_GEARS_AUGMENT, "Windup");
+		addAugment(RegistryManager.EMBER_REDIRECTION_MODULE_AUGMENT, "Redirecting");
 
 
 		//text

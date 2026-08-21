@@ -88,6 +88,7 @@ public class EmbersItemModels extends ItemModelProvider {
 		basicItem(RegistryManager.FOCAL_LENS.get());
 		basicItem(RegistryManager.SHIFTING_SCALES.get());
 		basicItem(RegistryManager.WINDING_GEARS.get());
+		basicItem(RegistryManager.EMBER_REDIRECTION_MODULE.get());
 
 		itemWithTexture(RegistryManager.RAW_CAMINITE_PLATE, "plate_caminite_raw");
 		itemWithTexture(RegistryManager.RAW_FLAT_STAMP, "flat_stamp_raw");

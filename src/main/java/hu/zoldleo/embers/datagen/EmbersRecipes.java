@@ -345,6 +345,7 @@ public class EmbersRecipes extends RecipeProvider implements IConditionBuilder {
 		AnvilAugmentRecipeBuilder.create(RegistryManager.FOCAL_LENS_AUGMENT).folder(anvilFolder).tool(projectileWeapons).input(RegistryManager.FOCAL_LENS.get()).save(output);
 		AnvilAugmentRecipeBuilder.create(RegistryManager.SHIFTING_SCALES_AUGMENT).folder(anvilFolder).tool(HeatIngredient.of(Ingredient.of(EmbersItemTags.AUGMENTABLE_ARMORS))).input(RegistryManager.SHIFTING_SCALES.get()).save(output);
 		AnvilAugmentRecipeBuilder.create(RegistryManager.WINDING_GEARS_AUGMENT).folder(anvilFolder).tool(HeatIngredient.of(CompoundIngredient.of(Ingredient.of(EmbersItemTags.AUGMENTABLE_TOOLS), Ingredient.of(EmbersItemTags.AUGMENTABLE_BOOTS)))).input(RegistryManager.WINDING_GEARS.get()).save(output);
+        AnvilAugmentRecipeBuilder.create(RegistryManager.EMBER_REDIRECTION_MODULE_AUGMENT).folder(anvilFolder).tool(HeatIngredient.of(Ingredient.of(EmbersItemTags.AUGMENTABLE_ARMORS))).input(RegistryManager.EMBER_REDIRECTION_MODULE).save(output);
 
 		//special recipes
 		GemSocketRecipeBuilder.create(Tags.Items.STRINGS).id(Embers.res("gem_socketing")).save(output);

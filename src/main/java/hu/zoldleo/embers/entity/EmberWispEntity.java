@@ -117,7 +117,7 @@ public class EmberWispEntity extends Mob implements Enemy {
                 playSound(EmbersSounds.EMBER_RECEIVE_BIG.get(), 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
                 if (level() instanceof ServerLevel serverlevel)
                     EnchantmentHelper.doPostAttackEffects(serverlevel, livingEntity, damagesource);
-                EmberInventoryUtil.addEmber(livingEntity, ember * 0.02); // TODO: tweak / config
+                EmberInventoryUtil.addEmber(livingEntity, ember * 0.001); // TODO: tweak / config
                 discard();
             }
         }
