@@ -64,11 +64,11 @@ public class DawnstoneShieldModel extends Model {
                 PartPose.offsetAndRotation(0, 0, -3, 0.0436f, 0, 0)); // 2.5 deg = 0.0436 rad
         plate.addOrReplaceChild("left_plate", CubeListBuilder.create()
                         .texOffs(24, 28)
-                        .addBox(-6.2f, -14, -1, 10.2f, 20, 2),
+                        .addBox(-6, -14, -1, 10, 20, 2),
                 PartPose.offsetAndRotation(4, 4, -2.4f, 0, -0.1745f, 0.3927f)); // -10 deg = -0.1745 rad, 22.5 deg = 0.3927 rad
         plate.addOrReplaceChild("right_plate", CubeListBuilder.create()
                         .texOffs(0, 28)
-                        .addBox(-4, -14, -1, 10.2f, 20, 2),
+                        .addBox(-4, -14, -1, 10, 20, 2),
                 PartPose.offsetAndRotation(-4, 4, -2.4f, 0, 0.1745f, -0.3927f)); // 10 deg = 0.1745 rad, -22.5 deg = -0.3927 rad
 
         PartDefinition gems = plate.addOrReplaceChild("gems", CubeListBuilder.create(), PartPose.ZERO);

@@ -1,6 +1,7 @@
 package hu.zoldleo.embers.block.storage;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -42,7 +43,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -63,11 +63,12 @@ public class FluidVesselBlock extends AbstractCauldronBlock implements EntityBlo
 	@Override
 	public @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
         if (!stack.isEmpty()) {
-            IFluidHandler cap = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, hit.getDirection());
-            if (cap != null && FluidUtil.interactWithFluidHandler(player, hand, cap))
+            FluidUtil.getFluidHandler(level, pos, hit.getDirection());
+            Optional<IFluidHandler> cap = FluidUtil.getFluidHandler(level, pos, hit.getDirection());
+            if (cap.isPresent() && FluidUtil.interactWithFluidHandler(player, hand, cap.get()))
                 return ItemInteractionResult.SUCCESS;
             //prevent buckets from placing their fluid in the world when clicking on the vessel
-            if (stack.getCapability(Capabilities.FluidHandler.ITEM) != null)
+            if (FluidUtil.getFluidHandler(stack).isPresent())
                 return ItemInteractionResult.CONSUME_PARTIAL;
         }
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
@@ -114,16 +115,16 @@ public class FluidVesselBlock extends AbstractCauldronBlock implements EntityBlo
 	}
 
 	@Override
-	public void receiveStalactiteDrip(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Fluid fluid) {
-        IFluidHandler cap = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, Direction.UP);
-        if (cap == null)
+	public void receiveStalactiteDrip(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Fluid fluid) {
+        Optional<IFluidHandler> cap = FluidUtil.getFluidHandler(level, pos, Direction.UP);
+        if (cap.isEmpty())
             return;
 
         int amount = 333;
         if (fluid == Fluids.LAVA)
             amount = FluidType.BUCKET_VOLUME;
 
-        cap.fill(new FluidStack(fluid, amount), IFluidHandler.FluidAction.EXECUTE);
+        cap.get().fill(new FluidStack(fluid, amount), IFluidHandler.FluidAction.EXECUTE);
 
         if (fluid.getFluidType().getTemperature() > 500) {
             level.levelEvent(LevelEvent.SOUND_DRIP_LAVA_INTO_CAULDRON, pos, 0);
@@ -148,16 +149,14 @@ public class FluidVesselBlock extends AbstractCauldronBlock implements EntityBlo
 		BlockEntity blockentity = pBuilder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
 		if (blockentity instanceof FluidVesselBlockEntity vesselTile)
             for (ItemStack stack : items)
-                if (stack.getItem() == RegistryManager.FLUID_VESSEL_ITEM.get()) {
-                    IFluidHandler cap = stack.getCapability(Capabilities.FluidHandler.ITEM);
-                    if (cap != null)
-                        cap.fill(vesselTile.getFluidStack(), IFluidHandler.FluidAction.EXECUTE);
-                }
+                if (stack.getItem() == RegistryManager.FLUID_VESSEL_ITEM.get())
+                    FluidUtil.getFluidHandler(stack).ifPresent(x -> x.fill(vesselTile.getFluidStack(), IFluidHandler.FluidAction.EXECUTE));
 		return items;
 	}
 
 	@Nullable
 	@Override
+    @SuppressWarnings("DataFlowIssue")
 	public BlockState getStateForPlacement(@NotNull BlockPlaceContext pContext) {
 		return super.getStateForPlacement(pContext).setValue(BlockStateProperties.WATERLOGGED, pContext.getLevel().getFluidState(pContext.getClickedPos()).is(Fluids.WATER));
 	}

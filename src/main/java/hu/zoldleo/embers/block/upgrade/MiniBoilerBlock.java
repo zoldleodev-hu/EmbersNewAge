@@ -32,7 +32,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
@@ -67,7 +66,7 @@ public class MiniBoilerBlock extends BaseEntityBlock implements SimpleWaterlogge
                 if (didFill)
                     return ItemInteractionResult.SUCCESS;
                 //prevent buckets from placing their fluid in the world when clicking on the boiler
-				if (stack.getCapability(Capabilities.FluidHandler.ITEM) != null)
+				if (FluidUtil.getFluidHandler(stack).isPresent())
 					return ItemInteractionResult.CONSUME_PARTIAL;
 			}
 		}

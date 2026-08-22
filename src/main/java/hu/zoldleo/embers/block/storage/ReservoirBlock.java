@@ -33,10 +33,11 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 public class ReservoirBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final MapCodec<ReservoirBlock> CODEC = simpleCodec(ReservoirBlock::new);
@@ -71,11 +72,11 @@ public class ReservoirBlock extends BaseEntityBlock implements SimpleWaterlogged
 	@Override
 	public @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
         if (!stack.isEmpty()) {
-            IFluidHandler cap = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, hit.getDirection());
-            if (cap != null && FluidUtil.interactWithFluidHandler(player, hand, cap))
+            Optional<IFluidHandler> cap = FluidUtil.getFluidHandler(level, pos, hit.getDirection());
+            if (cap.isPresent() && FluidUtil.interactWithFluidHandler(player, hand, cap.get()))
                 return ItemInteractionResult.SUCCESS;
             //prevent buckets from placing their fluid in the world when clicking on the vessel
-            if (stack.getCapability(Capabilities.FluidHandler.ITEM) != null)
+            if (FluidUtil.getFluidHandler(stack).isPresent())
                 return ItemInteractionResult.CONSUME_PARTIAL;
         }
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;

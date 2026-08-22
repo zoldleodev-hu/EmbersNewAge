@@ -1,9 +1,10 @@
 package hu.zoldleo.embers.item;
 
 import java.util.List;
+import java.util.Optional;
 
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import org.jetbrains.annotations.NotNull;
 
 import hu.zoldleo.embers.block.FluidDialBlock;
@@ -21,9 +22,9 @@ public class FluidVesselBlockItem extends BlockItem {
 	}
 
 	@Override
-	public int getMaxStackSize(ItemStack stack) {
-        IFluidHandler tank = stack.getCapability(Capabilities.FluidHandler.ITEM);
-        if (tank != null && !tank.getFluidInTank(0).isEmpty())
+	public int getMaxStackSize(@NotNull ItemStack stack) {
+        Optional<IFluidHandlerItem> tank = FluidUtil.getFluidHandler(stack);
+        if (tank.isPresent() && !tank.get().getFluidInTank(0).isEmpty())
             return 1;
 		return super.getMaxStackSize(stack);
 	}
@@ -38,10 +39,9 @@ public class FluidVesselBlockItem extends BlockItem {
 	}*/
 
 	@Override
-	public void appendHoverText(ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag isAdvanced) {
-		IFluidHandler cap = stack.getCapability(Capabilities.FluidHandler.ITEM);
-        if (cap == null)
-            return;
-        tooltip.add(FluidDialBlock.formatFluidStack(cap.getFluidInTank(0), cap.getTankCapacity(0)).withStyle(ChatFormatting.GRAY));
+	public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag isAdvanced) {
+        FluidUtil.getFluidHandler(stack).ifPresent(cap ->
+                tooltip.add(FluidDialBlock.formatFluidStack(cap.getFluidInTank(0), cap.getTankCapacity(0)).withStyle(ChatFormatting.GRAY))
+        );
 	}
 }
