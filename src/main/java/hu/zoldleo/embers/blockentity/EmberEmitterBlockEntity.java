@@ -130,7 +130,7 @@ public class EmberEmitterBlockEntity extends BlockEntity implements IEmberPacket
 	}
 
 	public boolean canSendBurst() {
-		if (level.hasNeighborSignal(worldPosition) && target != null && level.isLoaded(target) && !level.isClientSide) {
+		if (!level.hasNeighborSignal(worldPosition) && target != null && level.isLoaded(target) && !level.isClientSide) {
 			if (trajectoryChunks == null) {
 				trajectoryChunks = new HashSet<>();
 				Misc.calculateTrajectoryChunks(trajectoryChunks, worldPosition, target, getEmittingDirection(level.getBlockState(worldPosition).getValue(BlockStateProperties.FACING)));

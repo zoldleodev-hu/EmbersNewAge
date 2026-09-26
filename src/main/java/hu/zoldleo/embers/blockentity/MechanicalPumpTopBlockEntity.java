@@ -39,13 +39,13 @@ public class MechanicalPumpTopBlockEntity extends BlockEntity implements IExtraC
     @Override
     public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
         super.loadAdditional(tag, provider);
-        tank.readFromNBT(provider, tag);
+        tank.readFromNBT(provider, tag.getCompound("tank"));
     }
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
         super.saveAdditional(tag, provider);
-        tank.writeToNBT(provider, tag);
+		tag.put("tank", tank.writeToNBT(provider, new CompoundTag()));
     }
 
 	public int getCapacity(){

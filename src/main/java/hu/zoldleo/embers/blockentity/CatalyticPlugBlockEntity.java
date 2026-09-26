@@ -72,28 +72,28 @@ public class CatalyticPlugBlockEntity extends BlockEntity implements ISoundContr
 	}
 
 	@Override
-	public void loadAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
-		super.loadAdditional(nbt, provider);
-		tank.readFromNBT(provider, nbt);
-		activeTicks = nbt.getInt("active");
-		burnTime = nbt.getInt("burnTime");
+	public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		super.loadAdditional(tag, provider);
+		tank.readFromNBT(provider, tag.getCompound("tank"));
+		activeTicks = tag.getInt("active");
+		burnTime = tag.getInt("burnTime");
 	}
 
 	@Override
-	public void saveAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
-		super.saveAdditional(nbt, provider);
-		tank.writeToNBT(provider, nbt);
-		nbt.putInt("active", activeTicks);
-		nbt.putInt("burnTime", burnTime);
+	public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		super.saveAdditional(tag, provider);
+		tag.put("tank", tank.writeToNBT(provider, new CompoundTag()));
+		tag.putInt("active", activeTicks);
+		tag.putInt("burnTime", burnTime);
 	}
 
 	@Override
 	public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider provider) {
-		CompoundTag nbt = super.getUpdateTag(provider);
-		tank.writeToNBT(provider, nbt);
-		nbt.putInt("active", activeTicks);
-		nbt.putInt("burnTime", burnTime);
-		return nbt;
+		CompoundTag tag = super.getUpdateTag(provider);
+		tag.put("tank", tank.writeToNBT(provider, new CompoundTag()));
+		tag.putInt("active", activeTicks);
+		tag.putInt("burnTime", burnTime);
+		return tag;
 	}
 
 	@Override

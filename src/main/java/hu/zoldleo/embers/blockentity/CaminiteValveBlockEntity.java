@@ -83,13 +83,12 @@ public class CaminiteValveBlockEntity extends BlockEntity implements IFluidBlock
 			return;
 		reservoir = null;
 		BlockPos basePos = worldPosition.offset(getBlockState().getValue(MechEdgeBlockBase.EDGE).centerPos);
-		for (int i = 1; i < 64; i++) { // TODO
+		for (int i = 1; true; i++) {
 			BlockPos pos = basePos.below(i);
 			if (!level.getBlockState(pos).is(EmbersBlockTags.RESERVOIR_EXPANSION)) {
 				BlockEntity tile = level.getBlockEntity(pos);
-				if (tile instanceof ReservoirBlockEntity) {
-					reservoir = (ReservoirBlockEntity) tile;
-				}
+				if (tile instanceof ReservoirBlockEntity reservoirTile)
+					reservoir = reservoirTile;
 				break;
 			}
 		}

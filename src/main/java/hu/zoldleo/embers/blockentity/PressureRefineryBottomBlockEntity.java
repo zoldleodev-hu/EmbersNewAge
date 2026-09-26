@@ -90,19 +90,19 @@ public class PressureRefineryBottomBlockEntity extends BlockEntity implements IE
 	}
 
 	@Override
-	public void loadAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
-		super.loadAdditional(nbt, provider);
-        tank.readFromNBT(provider, nbt);
-		inventory.deserializeNBT(provider, nbt.getCompound("Inventory"));
-		progress = nbt.getInt("progress");
+	public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		super.loadAdditional(tag, provider);
+        tank.readFromNBT(provider, tag.getCompound("tank"));
+		inventory.deserializeNBT(provider, tag.getCompound("Inventory"));
+		progress = tag.getInt("progress");
 	}
 
 	@Override
-	public void saveAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
-		super.saveAdditional(nbt, provider);
-        tank.writeToNBT(provider, nbt);
-		nbt.put("Inventory", inventory.serializeNBT(provider));
-		nbt.putInt("progress", progress);
+	public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		super.saveAdditional(tag, provider);
+		tag.put("tank", tank.writeToNBT(provider, new CompoundTag()));
+		tag.put("Inventory", inventory.serializeNBT(provider));
+		tag.putInt("progress", progress);
 	}
 
 	public double getMultiplier() {

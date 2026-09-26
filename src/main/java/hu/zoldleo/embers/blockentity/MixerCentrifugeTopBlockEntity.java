@@ -59,24 +59,24 @@ public class MixerCentrifugeTopBlockEntity extends BlockEntity implements IExtra
 	}
 
 	@Override
-	public void loadAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
-		super.loadAdditional(nbt, provider);
-        tank.readFromNBT(provider, nbt);
-		capability.readFromNBT(provider, nbt);
+	public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		super.loadAdditional(tag, provider);
+        tank.readFromNBT(provider, tag.getCompound("tank"));
+		capability.readFromNBT(provider, tag);
 	}
 
 	@Override
-	public void saveAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
-		super.saveAdditional(nbt, provider);
-        tank.writeToNBT(provider, nbt);
-		capability.writeToNBT(provider, nbt);
+	public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		super.saveAdditional(tag, provider);
+		tag.put("tank", tank.writeToNBT(provider, new CompoundTag()));
+		capability.writeToNBT(provider, tag);
 	}
 
 	@Override
 	public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider provider) {
-		CompoundTag nbt = super.getUpdateTag(provider);
-        tank.writeToNBT(provider, nbt);
-		return nbt;
+		CompoundTag tag = super.getUpdateTag(provider);
+		tag.put("tank", tank.writeToNBT(provider, new CompoundTag()));
+		return tag;
 	}
 
 	@Override

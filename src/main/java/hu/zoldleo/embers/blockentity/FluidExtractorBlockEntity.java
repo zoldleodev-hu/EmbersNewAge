@@ -1,9 +1,16 @@
 package hu.zoldleo.embers.blockentity;
 
 import java.util.List;
-import java.util.Random;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import hu.zoldleo.embers.api.tile.IExtractorPipe;
 import hu.zoldleo.embers.blockentity.capability_helper.IFluidBlock;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -12,116 +19,105 @@ import org.jetbrains.annotations.NotNull;
 import hu.zoldleo.embers.Embers;
 import hu.zoldleo.embers.RegistryManager;
 import hu.zoldleo.embers.api.tile.IExtraCapabilityInformation;
-import hu.zoldleo.embers.particle.VaporParticleOptions;
-import hu.zoldleo.embers.util.EmbersColors;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 
-public class FluidExtractorBlockEntity extends FluidPipeBlockEntityBase implements IExtraCapabilityInformation, IFluidBlock {
-	IFluidHandler[] sideHandlers;
+public class FluidExtractorBlockEntity extends FluidPipeBlockEntityBase implements IExtraCapabilityInformation, IFluidBlock, IExtractorPipe {
 	boolean active;
 	public static final int MAX_DRAIN = 120;
+	SortedSet<PipeNetworkConnection> networkConnections = new TreeSet<>();
+	IFluidHandler pushHandler = new IFluidHandler() {
+		@Override
+		public int getTanks() {
+			return 1;
+		}
+
+		@Override
+		public @NotNull FluidStack getFluidInTank(int i) {
+			return FluidStack.EMPTY;
+		}
+
+		@Override
+		public int getTankCapacity(int i) {
+			return 240;
+		}
+
+		@Override
+		public boolean isFluidValid(int i, @NotNull FluidStack fluidStack) {
+			return true;
+		}
+
+		@Override
+		public int fill(@NotNull FluidStack fluidStack, @NotNull FluidAction fluidAction) {
+			return push(fluidStack, fluidAction);
+		}
+
+		@Override
+		public @NotNull FluidStack drain(@NotNull FluidStack fluidStack, @NotNull FluidAction fluidAction) {
+			return FluidStack.EMPTY;
+		}
+
+		@Override
+		public @NotNull FluidStack drain(int i, @NotNull FluidAction fluidAction) {
+			return FluidStack.EMPTY;
+		}
+	};
 
 	public FluidExtractorBlockEntity(BlockPos pPos, BlockState pBlockState) {
 		super(RegistryManager.FLUID_EXTRACTOR_ENTITY.get(), pPos, pBlockState);
 	}
 
-	@Override
-	protected void initFluidTank() {
-		super.initFluidTank();
-		sideHandlers = new IFluidHandler[Direction.values().length];
-		for (Direction facing : Direction.values())
-			sideHandlers[facing.get3DDataValue()] = new IFluidHandler() {
-				@Override
-				public int fill(@NotNull FluidStack resource, @NotNull FluidAction action) {
-					if (active)
-						return 0;
-					if (action.execute())
-						setFrom(facing,true);
-					return tank.fill(resource, action);
-				}
+	public static void serverTick(Level level, BlockPos pos, BlockState state, FluidExtractorBlockEntity extractor) {
+		FluidPipeBlockEntityBase.serverTick(level, pos, state, extractor);
+		boolean wasActive = extractor.active;
+		extractor.active = !level.hasNeighborSignal(pos);
+		if (extractor.active != wasActive)
+			extractor.updateNetwork();
+		if (!extractor.active || extractor.networkConnections.isEmpty())
+			return;
 
-				@Override
-				public @NotNull FluidStack drain(@NotNull FluidStack resource, @NotNull FluidAction action) {
-					return tank.drain(resource, action);
-				}
-
-				@Override
-				public @NotNull FluidStack drain(int maxDrain, @NotNull FluidAction action) {
-					return tank.drain(maxDrain, action);
-				}
-
-				@Override
-				public int getTanks() {
-					return tank.getTanks();
-				}
-
-				@Override
-				public @NotNull FluidStack getFluidInTank(int tankNum) {
-					return tank.getFluidInTank(tankNum);
-				}
-
-				@Override
-				public int getTankCapacity(int tankNum) {
-					return tank.getTankCapacity(tankNum);
-				}
-
-				@Override
-				public boolean isFluidValid(int tankNum, @NotNull FluidStack stack) {
-					return tank.isFluidValid(tankNum, stack);
-				}
-			};
-	}
-
-	public static void serverTick(Level level, BlockPos pos, BlockState state, FluidExtractorBlockEntity blockEntity) {
-		if (level instanceof ServerLevel && blockEntity.clogged && blockEntity.isAnySideUnclogged()) {
-			Random posRand = new Random(pos.asLong());
-			double angleA = posRand.nextDouble() * Math.PI * 2;
-			double angleB = posRand.nextDouble() * Math.PI * 2;
-			float xOffset = (float) (Math.cos(angleA) * Math.cos(angleB));
-			float yOffset = (float) (Math.sin(angleA) * Math.cos(angleB));
-			float zOffset = (float) Math.sin(angleB);
-			float speed = 0.1f;
-			float vx = xOffset * speed + posRand.nextFloat() * speed * 0.3f;
-			float vy = yOffset * speed + posRand.nextFloat() * speed * 0.3f;
-			float vz = zOffset * speed + posRand.nextFloat() * speed * 0.3f;
-			((ServerLevel) level).sendParticles(new VaporParticleOptions(EmbersColors.VAPOR_ID, new Vec3(vx, vy, vz), 1.0f), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 4, 0, 0, 0, 1.0);
-		}
-		blockEntity.active = level.hasNeighborSignal(pos);
 		for (Direction facing : Direction.values()) {
-			if (!blockEntity.getConnection(facing).transfer)
+			if (!extractor.getConnection(facing).transfer)
 				continue;
 			BlockEntity tile = level.getBlockEntity(pos.relative(facing));
-			if (tile != null && !(tile instanceof FluidPipeBlockEntityBase)) {
-				if (blockEntity.active) {
-					IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos.relative(facing), facing.getOpposite());
-                    if (handler != null) {
-                        FluidStack extracted = handler.drain(MAX_DRAIN, IFluidHandler.FluidAction.SIMULATE);
-                        int filled = blockEntity.tank.fill(extracted, IFluidHandler.FluidAction.SIMULATE);
-                        if (filled > 0) {
-                            blockEntity.tank.fill(extracted, IFluidHandler.FluidAction.EXECUTE);
-                            handler.drain(filled, IFluidHandler.FluidAction.EXECUTE);
-                        }
-                    }
-					blockEntity.setFrom(facing, true);
-				} else {
-					blockEntity.setFrom(facing, false);
-				}
-			}
-		}
-		FluidPipeBlockEntityBase.serverTick(level, pos, state, blockEntity);
+			if (tile == null || tile instanceof FluidPipeBlockEntityBase)
+				continue;
+            IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos.relative(facing), facing.getOpposite());
+            if (handler == null)
+				continue;
+            FluidStack extracted = handler.drain(MAX_DRAIN, IFluidHandler.FluidAction.SIMULATE);
+            int filled = extractor.push(extracted, IFluidHandler.FluidAction.SIMULATE);
+            if (filled > 0) {
+                extractor.push(extracted, IFluidHandler.FluidAction.EXECUTE);
+                handler.drain(filled, IFluidHandler.FluidAction.EXECUTE);
+            }
+        }
 	}
 
-	@Override
-	public int getCapacity() {
-		return 240;
+	public int push(FluidStack stack, IFluidHandler.FluidAction simulate) {
+		if (stack.isEmpty())
+			return 0;
+		if (networkConnections.isEmpty())
+			return 0;
+
+		int totalFilled = 0;
+		FluidStack copy = stack.copy();
+		for (PipeNetworkConnection connection : networkConnections) {
+			if (stack.isEmpty())
+				return 0;
+			IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, connection.pos(), connection.side());
+			if (handler == null)
+				continue;
+			int filled = handler.fill(copy, simulate);
+			copy.shrink(filled);
+			totalFilled += filled;
+		}
+		return totalFilled;
 	}
 
 	@Override
@@ -131,12 +127,52 @@ public class FluidExtractorBlockEntity extends FluidPipeBlockEntityBase implemen
 
     @Override
     public IFluidHandler getFluidCapability(Direction side) {
-        if (!this.remove) {
-            if (side == null)
-                return tank;
-            else if (getConnection(side).transfer)
-                return sideHandlers[side.get3DDataValue()];
-        }
-        return null;
+		return pushHandler;
     }
+
+	@Override
+	public void addConnection(BlockPos pos, Direction side, int priority) {
+		networkConnections.add(new PipeNetworkConnection(pos, side, priority));
+	}
+
+	@Override
+	public void clearConnections() {
+		networkConnections.clear();
+	}
+
+	@Override
+	public boolean active() {
+		return active;
+	}
+
+	@Override
+	public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		super.loadAdditional(tag, provider);
+		if (!tag.contains("NetworkConnections"))
+			return;
+		networkConnections.clear();
+		ListTag networkConnectionListTag = tag.getList("NetworkConnections", Tag.TAG_COMPOUND);
+		for (Tag connectionTag : networkConnectionListTag)
+			networkConnections.add(
+					new PipeNetworkConnection(
+							NbtUtils.readBlockPos((CompoundTag)connectionTag, "pos").orElseThrow(),
+							Direction.from3DDataValue(((CompoundTag)connectionTag).getInt("side")),
+							((CompoundTag) connectionTag).getInt("priority")
+					)
+			);
+	}
+
+	@Override
+	public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		super.saveAdditional(tag, provider);
+		ListTag networkConnectionListTag = new ListTag(networkConnections.size());
+		for (PipeNetworkConnection connection : networkConnections) {
+			CompoundTag connectionTag = new CompoundTag(2);
+			connectionTag.put("pos", NbtUtils.writeBlockPos(connection.pos()));
+			connectionTag.putInt("side", connection.side().get3DDataValue());
+			connectionTag.putInt("priority", connection.priority());
+			networkConnectionListTag.add(connectionTag);
+		}
+		tag.put("NetworkConnections", networkConnectionListTag);
+	}
 }

@@ -5,7 +5,6 @@ import javax.annotation.Nullable;
 import hu.zoldleo.embers.api.block.IPipeConnection;
 import hu.zoldleo.embers.blockentity.PipeBlockEntityBase;
 import hu.zoldleo.embers.blockentity.PipeBlockEntityBase.PipeConnection;
-import hu.zoldleo.embers.datagen.EmbersItemTags;
 import hu.zoldleo.embers.datagen.EmbersSounds;
 import hu.zoldleo.embers.util.Misc;
 
@@ -70,8 +69,6 @@ public abstract class PipeBlockBase extends BaseEntityBlock implements SimpleWat
 
 	public abstract boolean connectToBlock(Level level, BlockPos pos, Direction face);
 
-	public abstract boolean unclog(BlockEntity blockEntity, Level level, BlockPos pos);
-
 	public PipeBlockBase(Properties pProperties) {
 		super(pProperties);
 		this.registerDefaultState(this.stateDefinition.any().setValue(BlockStateProperties.WATERLOGGED, false));
@@ -79,12 +76,8 @@ public abstract class PipeBlockBase extends BaseEntityBlock implements SimpleWat
 
 	@Override
 	public @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
-		if (!Misc.isHoldingHammer(player, hand)) {
-			if (player.getItemInHand(hand).is(EmbersItemTags.PIPE_UNCLOGGER))
-				if (unclog(level.getBlockEntity(pos), level, pos))
-					return ItemInteractionResult.SUCCESS;
+		if (!Misc.isHoldingHammer(player, hand))
 			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-		}
 
         if (!(level.getBlockEntity(pos) instanceof PipeBlockEntityBase pipe))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;

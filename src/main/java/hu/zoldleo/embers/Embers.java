@@ -156,11 +156,13 @@ public class Embers {
 
 	public void registerCaps(RegisterCapabilitiesEvent event) {
         for (DeferredHolder<BlockEntityType<?>, ? extends BlockEntityType<? extends IEmberBlock>> tile : List.of(
-                RegistryManager.AUTOMATIC_HAMMER_ENTITY, RegistryManager.BEAM_CANNON_ENTITY, RegistryManager.COPPER_CELL_ENTITY,
-                RegistryManager.COPPER_CHARGER_ENTITY, RegistryManager.CREATIVE_EMBER_ENTITY, RegistryManager.CRYSTAL_CELL_ENTITY,
+                RegistryManager.AUTOMATIC_HAMMER_ENTITY, RegistryManager.BEAM_CANNON_ENTITY,
+				RegistryManager.COPPER_CELL_ENTITY, RegistryManager.COPPER_CHARGER_ENTITY,
+				RegistryManager.CREATIVE_EMBER_ENTITY, RegistryManager.CRYSTAL_CELL_ENTITY,
                 RegistryManager.EMBER_ACTIVATOR_TOP_ENTITY, RegistryManager.EMBER_EJECTOR_ENTITY,
-                RegistryManager.EMBER_EMITTER_ENTITY, RegistryManager.EMBER_FUNNEL_ENTITY, RegistryManager.EMBER_INJECTOR_ENTITY,
-                RegistryManager.EMBER_RECEIVER_ENTITY, RegistryManager.EMBER_SIPHON_ENTITY, RegistryManager.HEARTH_COIL_ENTITY,
+                RegistryManager.EMBER_EMITTER_ENTITY, RegistryManager.EMBER_FUNNEL_ENTITY,
+				RegistryManager.EMBER_INJECTOR_ENTITY, RegistryManager.EMBER_RECEIVER_ENTITY,
+				RegistryManager.EMBER_SIPHON_ENTITY, RegistryManager.HEARTH_COIL_ENTITY,
                 RegistryManager.IGNEM_REACTOR_ENTITY, RegistryManager.INFERNO_FORGE_BOTTOM_ENTITY,
                 RegistryManager.MECHANICAL_CORE_ENTITY, RegistryManager.MECHANICAL_PUMP_BOTTOM_ENTITY,
                 RegistryManager.MELTER_BOTTOM_ENTITY, RegistryManager.MIXER_CENTRIFUGE_TOP_ENTITY,
@@ -177,28 +179,31 @@ public class Embers {
                 RegistryManager.CHAR_INSTILLER_ENTITY, RegistryManager.CLOCKWORK_ATTENUATOR_ENTITY,
                 RegistryManager.EMBER_SIPHON_ENTITY, RegistryManager.ENTROPIC_ENUMERATOR_ENTITY,
                 RegistryManager.EXCAVATION_BUCKETS_ENTITY, RegistryManager.GEOLOGIC_SEPARATOR_ENTITY,
-                RegistryManager.HEAT_EXCHANGER_ENTITY, RegistryManager.HEAT_INSULATION_ENTITY, RegistryManager.MINI_BOILER_ENTITY,
-                RegistryManager.MNEMONIC_INSCRIBER_ENTITY, RegistryManager.WILDFIRE_STIRLING_ENTITY))
+                RegistryManager.HEAT_EXCHANGER_ENTITY, RegistryManager.HEAT_INSULATION_ENTITY,
+				RegistryManager.MINI_BOILER_ENTITY, RegistryManager.MNEMONIC_INSCRIBER_ENTITY,
+				RegistryManager.WILDFIRE_STIRLING_ENTITY))
             event.registerBlockEntity(EmbersCapabilities.UPGRADE_PROVIDER_CAPABILITY, tile.get(), IUpgradeBlock::getUpgradeCapability);
 
         for (DeferredHolder<BlockEntityType<?>, ? extends BlockEntityType<? extends IInventoryBlock>> tile : List.of(
                 RegistryManager.ALCHEMY_PEDESTAL_ENTITY, RegistryManager.ALCHEMY_PEDESTAL_TOP_ENTITY,
-                RegistryManager.ALCHEMY_TABLET_ENTITY, RegistryManager.BIN_ENTITY, RegistryManager.CATALYSIS_CHAMBER_ENTITY,
-                RegistryManager.COMBUSTION_CHAMBER_ENTITY, RegistryManager.COPPER_CHARGER_ENTITY,
-                RegistryManager.CRYSTAL_CELL_ENTITY, RegistryManager.DAWNSTONE_ANVIL_ENTITY,
-                RegistryManager.EMBER_ACTIVATOR_BOTTOM_ENTITY, RegistryManager.EMBER_BORE_ENTITY,
-                RegistryManager.HEARTH_COIL_ENTITY, RegistryManager.IGNEM_REACTOR_ENTITY, RegistryManager.ITEM_DROPPER_ENTITY,
-                RegistryManager.ITEM_EXTRACTOR_ENTITY, RegistryManager.ITEM_PIPE_ENTITY, RegistryManager.ITEM_TRANSFER_ENTITY,
-                RegistryManager.ITEM_VACUUM_ENTITY, RegistryManager.MECHANICAL_CORE_ENTITY, RegistryManager.MELTER_TOP_ENTITY,
-                RegistryManager.MNEMONIC_INSCRIBER_ENTITY, RegistryManager.PRESSURE_REFINERY_BOTTOM_ENTITY,
-                RegistryManager.STAMP_BASE_ENTITY, RegistryManager.STAMPER_ENTITY))
+                RegistryManager.ALCHEMY_TABLET_ENTITY, RegistryManager.BIN_ENTITY,
+				RegistryManager.CATALYSIS_CHAMBER_ENTITY, RegistryManager.COMBUSTION_CHAMBER_ENTITY,
+				RegistryManager.COPPER_CHARGER_ENTITY, RegistryManager.CRYSTAL_CELL_ENTITY,
+				RegistryManager.DAWNSTONE_ANVIL_ENTITY, RegistryManager.EMBER_ACTIVATOR_BOTTOM_ENTITY,
+				RegistryManager.EMBER_BORE_ENTITY, RegistryManager.HEARTH_COIL_ENTITY,
+				RegistryManager.IGNEM_REACTOR_ENTITY, RegistryManager.ITEM_DROPPER_ENTITY,
+				RegistryManager.ITEM_EXTRACTOR_ENTITY, RegistryManager.ITEM_TRANSFER_ENTITY,
+				RegistryManager.ITEM_VACUUM_ENTITY, RegistryManager.MECHANICAL_CORE_ENTITY,
+				RegistryManager.MELTER_TOP_ENTITY, RegistryManager.MNEMONIC_INSCRIBER_ENTITY,
+				RegistryManager.PRESSURE_REFINERY_BOTTOM_ENTITY, RegistryManager.STAMP_BASE_ENTITY,
+				RegistryManager.STAMPER_ENTITY))
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, tile.get(), IInventoryBlock::getInventoryCapability);
 
         event.registerItem(Capabilities.ItemHandler.ITEM, (stack, v) -> new ComponentItemHandler(stack, DataComponents.CONTAINER, 7), RegistryManager.CODEBREAKING_SLATE);
 
         for (DeferredHolder<BlockEntityType<?>, ? extends BlockEntityType<? extends IFluidBlock>> tile : List.of(
                 RegistryManager.CAMINITE_VALVE_ENTITY, RegistryManager.CATALYTIC_PLUG_ENTITY,
-                RegistryManager.FLUID_EXTRACTOR_ENTITY, RegistryManager.FLUID_PIPE_ENTITY, RegistryManager.FLUID_TRANSFER_ENTITY,
+                RegistryManager.FLUID_EXTRACTOR_ENTITY, RegistryManager.FLUID_TRANSFER_ENTITY,
                 RegistryManager.FLUID_VESSEL_ENTITY, RegistryManager.GEOLOGIC_SEPARATOR_ENTITY,
                 RegistryManager.MECHANICAL_CORE_ENTITY, RegistryManager.MECHANICAL_PUMP_TOP_ENTITY,
                 RegistryManager.MELTER_TOP_ENTITY, RegistryManager.MINI_BOILER_ENTITY,

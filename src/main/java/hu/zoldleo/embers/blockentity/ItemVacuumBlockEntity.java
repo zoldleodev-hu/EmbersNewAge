@@ -40,7 +40,7 @@ public class ItemVacuumBlockEntity extends BlockEntity implements IExtraCapabili
 	public static void tick(Level level, BlockPos pos, BlockState state, ItemVacuumBlockEntity blockEntity) {
 		Direction facing = state.getValue(BlockStateProperties.FACING);
 		BlockEntity tile = level.getBlockEntity(pos.relative(facing.getOpposite()));
-		if (level.hasNeighborSignal(pos) && tile != null) {
+		if (!level.hasNeighborSignal(pos) && tile != null) {
             IItemHandler inventory = level.getCapability(Capabilities.ItemHandler.BLOCK, pos.relative(facing.getOpposite()), facing);
 			if (inventory != null) {
 				Vec3i vec = facing.getNormal();

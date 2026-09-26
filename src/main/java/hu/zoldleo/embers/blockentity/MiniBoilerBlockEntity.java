@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
+import hu.zoldleo.embers.api.tile.IExtractorPipe;
 import hu.zoldleo.embers.api.upgrades.IUpgradeProvider;
 import hu.zoldleo.embers.blockentity.capability_helper.IFluidBlock;
 import hu.zoldleo.embers.blockentity.capability_helper.IUpgradeBlock;
@@ -58,7 +59,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 
-public class MiniBoilerBlockEntity extends PipeBlockEntityBase implements ISoundController, IExtraDialInformation, IExtraCapabilityInformation, IUpgradeBlock, IFluidBlock {
+public class MiniBoilerBlockEntity extends PipeBlockEntityBase implements ISoundController, IExtraDialInformation, IExtraCapabilityInformation, IUpgradeBlock, IFluidBlock, IExtractorPipe {
 	public static final int SOUND_SLOW = 1;
 	public static final int SOUND_MEDIUM = 2;
 	public static final int SOUND_FAST = 3;
@@ -395,4 +396,24 @@ public class MiniBoilerBlockEntity extends PipeBlockEntityBase implements ISound
             return fluidTank;
         return null;
     }
+
+	@Override
+	public void addConnection(BlockPos pos, Direction side, int priority) {
+
+	}
+
+	@Override
+	public void clearConnections() {
+
+	}
+
+	@Override
+	public boolean active() {
+		return true;
+	}
+
+	@Override
+	public boolean acceptsPipes() {
+		return true;
+	}
 }

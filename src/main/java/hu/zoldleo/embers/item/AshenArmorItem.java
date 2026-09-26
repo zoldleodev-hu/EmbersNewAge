@@ -3,6 +3,7 @@ package hu.zoldleo.embers.item;
 import hu.zoldleo.embers.Embers;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
@@ -40,7 +41,7 @@ public class AshenArmorItem extends ArmorItem {
 
     @SubscribeEvent
     public static void modifyAttributes(ItemAttributeModifierEvent event) {
-        if (isBroken(event.getItemStack()))
+        if (event.getItemStack().getItem() instanceof AshenArmorItem && isBroken(event.getItemStack()))
             event.clearModifiers();
     }
 
@@ -55,7 +56,7 @@ public class AshenArmorItem extends ArmorItem {
 	}
 
 	public static boolean isBroken(ItemStack armor) {
-		return armor.getDamageValue() >= armor.getMaxDamage() - 1;
+		return !armor.has(DataComponents.UNBREAKABLE) && armor.getDamageValue() >= armor.getMaxDamage() - 1;
 	}
 
 	@Override

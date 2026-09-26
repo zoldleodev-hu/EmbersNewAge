@@ -19,9 +19,9 @@ public class EmbersTiers {
 	public static final Tier TYRFING = new SimpleTier(EmbersBlockTags.INCORRECT_FOR_TYRFING, 512, 7.5f, 0.0f, 24, () -> Ingredient.of(EmbersItemTags.ASH_DUST));
 	public static final Tier SILVER = new SimpleTier(EmbersBlockTags.INCORRECT_FOR_SILVER_TOOL, 202, 7.6f, 2.0f, 20, () -> Ingredient.of(EmbersItemTags.SILVER_INGOT));
 	public static final Tier DAWNSTONE = new SimpleTier(EmbersBlockTags.INCORRECT_FOR_DAWNSTONE_TOOL, 644, 7.5f, 2.5f, 18, () -> Ingredient.of(EmbersItemTags.DAWNSTONE_INGOT));
-	public static final Tier CLOCKWORK_PICK = new ClockworkTier(EmbersBlockTags.INCORRECT_FOR_CLOCKWORK_TOOL, -1, 16.0F, 4.0F, 18, () -> Ingredient.EMPTY);
-	public static final Tier CLOCKWORK_AXE = new ClockworkTier(EmbersBlockTags.INCORRECT_FOR_CLOCKWORK_TOOL, -1, 16.0F, 5.0F, 18, () -> Ingredient.EMPTY);
-	public static final Tier CLOCKWORK_HAMMER = new ClockworkTier(EmbersBlockTags.INCORRECT_FOR_CLOCKWORK_HAMMER, -1, 6.0F, 6.0F, 18, () -> Ingredient.EMPTY);
+	public static final Tier CLOCKWORK_PICK = new ClockworkTier(EmbersBlockTags.INCORRECT_FOR_CLOCKWORK_TOOL, 0, 16.0F, 4.0F, 18, () -> Ingredient.EMPTY);
+	public static final Tier CLOCKWORK_AXE = new ClockworkTier(EmbersBlockTags.INCORRECT_FOR_CLOCKWORK_TOOL, 0, 16.0F, 5.0F, 18, () -> Ingredient.EMPTY);
+	public static final Tier CLOCKWORK_HAMMER = new ClockworkTier(EmbersBlockTags.INCORRECT_FOR_CLOCKWORK_HAMMER, 0, 6.0F, 6.0F, 18, () -> Ingredient.EMPTY);
 
     public static class ClockworkTier extends SimpleTier {
         public ClockworkTier(TagKey<Block> incorrectBlocksForDrops, int uses, float speed, float attackDamageBonus, int enchantmentValue, Supplier<Ingredient> repairIngredient) {

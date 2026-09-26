@@ -75,31 +75,30 @@ public class ReservoirBlockEntity extends OpenTankBlockEntity implements IFluidB
 		height = 0;
 		boolean previouslyCapped = capped;
 		capped = false;
-		for (int i = 1; true; i++) {
-			BlockState state = level.getBlockState(worldPosition.above(i));
-			if (state.is(EmbersBlockTags.RESERVOIR_CAP)) {
-				capped = true;
-			}
-			if (state.is(EmbersBlockTags.RESERVOIR_EXPANSION)) {
-				capacity += ConfigManager.RESERVOIR_CAPACITY.get();
-				height++;
-			} else {
-				break;
-			}
-			if (state.is(EmbersBlockTags.RESERVOIR_END)) {
-				break;
-			}
-		}
+        for (int i = 0; true; i++) {
+            BlockState state = level.getBlockState(worldPosition.above(i));
+            if (state.is(EmbersBlockTags.RESERVOIR_CAP))
+                capped = true;
+            if (state.is(EmbersBlockTags.RESERVOIR_EXPANSION)) {
+                capacity += ConfigManager.RESERVOIR_CAPACITY.get();
+                height++;
+            } else {
+                break;
+            }
+            if (state.is(EmbersBlockTags.RESERVOIR_END))
+                break;
+        }
 		if (previouslyCapped && !capped && Misc.isGaseousFluid(tank.getFluid())) {
 			ReservoirBlockEntity.this.setEscapedFluid(tank.drain(tank.getFluidAmount(), IFluidHandler.FluidAction.EXECUTE));
 			this.setChanged();
 		}
 		if (tank.getCapacity() != capacity) {
 			this.tank.setCapacity(capacity);
-			int amount = tank.getFluidAmount();
-			if (amount > capacity) {
-				tank.drain(amount - capacity, IFluidHandler.FluidAction.EXECUTE);
-			}
+            if (!ConfigManager.RESERVOIR_RETAINS_FLUID.get()) {
+                int amount = tank.getFluidAmount();
+                if (amount > capacity)
+                    tank.drain(amount - capacity, IFluidHandler.FluidAction.EXECUTE);
+            }
 			this.setChanged();
 		}
 	}

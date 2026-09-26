@@ -18,7 +18,6 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class FluidExtractorBlock extends ExtractorBlockBase {
@@ -40,7 +39,7 @@ public class FluidExtractorBlock extends ExtractorBlockBase {
 
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, @NotNull BlockState pState, @NotNull BlockEntityType<T> pBlockEntityType) {
-		return pLevel.isClientSide ? createTickerHelper(pBlockEntityType, RegistryManager.FLUID_EXTRACTOR_ENTITY.get(), FluidExtractorBlockEntity::clientTick) : createTickerHelper(pBlockEntityType, RegistryManager.FLUID_EXTRACTOR_ENTITY.get(), FluidExtractorBlockEntity::serverTick);
+		return pLevel.isClientSide ? null : createTickerHelper(pBlockEntityType, RegistryManager.FLUID_EXTRACTOR_ENTITY.get(), FluidExtractorBlockEntity::serverTick);
 	}
 
 	@Override
@@ -55,17 +54,6 @@ public class FluidExtractorBlock extends ExtractorBlockBase {
 
 	@Override
 	public boolean connectToBlock(Level level, BlockPos pos, Direction direction) {
-		return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, direction.getOpposite()) != null;
-	}
-
-	@Override
-	public boolean unclog(BlockEntity blockEntity, Level level, BlockPos pos) {
-		if (blockEntity instanceof FluidPipeBlockEntityBase pipeEntity && pipeEntity.clogged) {
-			IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, null);
-			handler.drain(handler.getTankCapacity(0), IFluidHandler.FluidAction.EXECUTE);
-			level.updateNeighbourForOutputSignal(pos, this);
-			return true;
-		}
-		return false;
+		return level.getBlockEntity(pos) instanceof FluidPipeBlockEntityBase || level.getCapability(Capabilities.FluidHandler.BLOCK, pos, direction.getOpposite()) != null;
 	}
 }

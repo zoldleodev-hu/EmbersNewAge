@@ -27,34 +27,34 @@ public abstract class OpenTankBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	public void loadAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider registries) {
-		super.loadAdditional(nbt, registries);
-        tank.readFromNBT(registries, nbt);
-		if (nbt.contains("lastEscaped")) {
-			lastEscaped = FluidStack.parseOptional(registries, nbt.getCompound("lastEscaped"));
-			lastEscapedTickServer = nbt.getLong("lastEscapedTick");
+	public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+		super.loadAdditional(tag, registries);
+        tank.readFromNBT(registries, tag.getCompound("tank"));
+		if (tag.contains("lastEscaped")) {
+			lastEscaped = FluidStack.parseOptional(registries, tag.getCompound("lastEscaped"));
+			lastEscapedTickServer = tag.getLong("lastEscapedTick");
 		}
 	}
 
 	@Override
-	public void saveAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider registries) {
-		super.saveAdditional(nbt, registries);
-        tank.writeToNBT(registries, nbt);
+	public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+		super.saveAdditional(tag, registries);
+		tag.put("tank", tank.writeToNBT(registries, new CompoundTag()));
 		if (lastEscaped != null) {
-			nbt.put("lastEscaped", lastEscaped.saveOptional(registries));
-			nbt.putLong("lastEscapedTick", lastEscapedTickServer);
+			tag.put("lastEscaped", lastEscaped.saveOptional(registries));
+			tag.putLong("lastEscapedTick", lastEscapedTickServer);
 		}
 	}
 
 	@Override
 	public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
-		CompoundTag nbt = super.getUpdateTag(registries);
-		tank.writeToNBT(registries, nbt);
+		CompoundTag tag = super.getUpdateTag(registries);
+		tag.put("tank", tank.writeToNBT(registries, new CompoundTag()));
 		if (lastEscaped != null) {
-			nbt.put("lastEscaped", lastEscaped.saveOptional(registries));
-			nbt.putLong("lastEscapedTick", lastEscapedTickServer);
+			tag.put("lastEscaped", lastEscaped.saveOptional(registries));
+			tag.putLong("lastEscapedTick", lastEscapedTickServer);
 		}
-		return nbt;
+		return tag;
 	}
 
 	@Override

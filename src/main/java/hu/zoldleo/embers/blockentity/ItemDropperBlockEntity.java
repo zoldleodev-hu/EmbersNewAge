@@ -15,7 +15,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
-public class ItemDropperBlockEntity extends BlockEntity implements IItemPipePriority, IInventoryBlock {
+public class ItemDropperBlockEntity extends BlockEntity implements IInventoryBlock {
 	public ItemStackHandler inventory = new ItemStackHandler(1) {
 		@Override
 		protected void onContentsChanged(int slot) {
@@ -42,11 +42,6 @@ public class ItemDropperBlockEntity extends BlockEntity implements IItemPipePrio
 	public static void serverTick(Level level, BlockPos pos, BlockState state, ItemDropperBlockEntity blockEntity) {
 		if (!blockEntity.inventory.getStackInSlot(0).isEmpty())
 			level.addFreshEntity(new ItemEntity(level, pos.getX()+0.5, pos.getY(), pos.getZ()+0.5, blockEntity.inventory.extractItem(0, 1, false), 0, -0.1, 0));
-	}
-
-	@Override
-	public int getPriority(Direction facing) {
-		return 50;
 	}
 
     @Override

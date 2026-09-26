@@ -335,6 +335,9 @@ public class EmbersBlockTags extends BlockTagsProvider {
 				RegistryManager.CAMINITE_GAUGE.get(),
 				RegistryManager.CAMINITE_VALVE.get());
 
+        tag(RESERVOIR_CAP).add(
+                RegistryManager.RESERVOIR_CAP.get());
+
 		tag(CHAMBER_CONNECTION).add(RegistryManager.IGNEM_REACTOR.get());
 
 		tag(DIAL).add(RegistryManager.EMBER_DIAL.get(), RegistryManager.ITEM_DIAL.get(), RegistryManager.FLUID_DIAL.get(), RegistryManager.CLOCKWORK_ATTENUATOR.get(), RegistryManager.ATMOSPHERIC_GAUGE.get());
